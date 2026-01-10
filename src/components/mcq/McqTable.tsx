@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { McqActionMenu } from "./McqActionMenu";
@@ -81,7 +82,7 @@ export function McqTable({
 
   if (isLoading) {
     return (
-      <div className="rounded-md border">
+      <Card>
         <Table>
           <TableHeader>
             <TableRow>
@@ -118,7 +119,7 @@ export function McqTable({
             ))}
           </TableBody>
         </Table>
-      </div>
+      </Card>
     );
   }
 
@@ -127,16 +128,16 @@ export function McqTable({
   }
 
   return (
-    <div className="rounded-md border">
+    <Card>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Question</TableHead>
-            <TableHead>Choices</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="h-12">Title</TableHead>
+            <TableHead className="h-12">Description</TableHead>
+            <TableHead className="h-12">Question</TableHead>
+            <TableHead className="h-12">Choices</TableHead>
+            <TableHead className="h-12">Created</TableHead>
+            <TableHead className="h-12 w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -187,6 +188,6 @@ export function McqTable({
           ))}
         </TableBody>
       </Table>
-    </div>
+    </Card>
   );
 }
