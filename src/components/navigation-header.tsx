@@ -30,7 +30,7 @@ export function NavigationHeader() {
       try {
         const response = await fetch("/api/auth/me");
         if (response.ok) {
-          const userData = await response.json();
+          const userData = await response.json() as User;
           setUser(userData);
         } else {
           setUser(null);

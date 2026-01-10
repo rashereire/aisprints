@@ -247,21 +247,20 @@ export function McqForm({
                   </div>
                 ))}
               </RadioGroup>
-                {errors.choices && typeof errors.choices.message === "string" && (
-                  <FieldError>{errors.choices.message}</FieldError>
-                )}
-                {fields.length < 4 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddChoice}
-                    className="w-full"
-                  >
-                    <Plus className="mr-2 size-4" />
-                    Add Choice
-                  </Button>
-                )}
-              </div>
+              {errors.choices && typeof errors.choices.message === "string" && (
+                <FieldError>{errors.choices.message}</FieldError>
+              )}
+              {fields.length < 4 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddChoice}
+                  className="w-full"
+                >
+                  <Plus className="mr-2 size-4" />
+                  Add Choice
+                </Button>
+              )}
             </Field>
           </FieldGroup>
 

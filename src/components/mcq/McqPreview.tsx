@@ -127,8 +127,8 @@ export function McqPreview({
                     )}
                   >
                     <RadioGroupItem
-                      value={choice.id}
-                      id={`preview-choice-${choice.id}`}
+                      value={choice.id || ""}
+                      id={`preview-choice-${choice.id || index}`}
                       className="mt-1"
                     />
                     <Label
