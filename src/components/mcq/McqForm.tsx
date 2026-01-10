@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { mcqCreateSchema, type McqCreateInput, type McqWithChoices } from "@/lib/schemas/mcq-schema";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -193,35 +195,36 @@ export function McqForm({
               <FieldDescription>
                 Add 2-4 choices. Exactly one must be marked as correct.
               </FieldDescription>
-              <div className="space-y-3">
+              <RadioGroup
+                value={correctChoiceIndex.toString()}
+                onValueChange={(value) => handleCorrectAnswerChange(parseInt(value, 10))}
+                className="space-y-3"
+              >
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="flex items-start gap-3 rounded-md border p-3"
+                    className="flex items-start gap-3 rounded-md border p-4"
                   >
                     <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="correctAnswer"
-                          checked={correctChoiceIndex === index}
-                          onChange={() => handleCorrectAnswerChange(index)}
-                          className="size-4"
-                          aria-label={`Mark choice ${index + 1} as correct`}
-                        />
-                        <label className="text-sm font-medium">
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value={index.toString()} id={`choice-${index}`} />
+                        <Label
+                          htmlFor={`choice-${index}`}
+                          className="text-sm font-medium cursor-pointer flex items-center gap-2"
+                        >
                           Choice {index + 1}
                           {correctChoiceIndex === index && (
-                            <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                            <span className="text-xs text-green-600 dark:text-green-400">
                               (Correct Answer)
                             </span>
                           )}
-                        </label>
+                        </Label>
                       </div>
                       <Input
                         {...register(`choices.${index}.choiceText`)}
                         placeholder={`Enter choice ${index + 1} text`}
                         aria-invalid={!!errors.choices?.[index]?.choiceText}
+                        className="mt-2"
                       />
                       {errors.choices?.[index]?.choiceText && (
                         <p className="text-sm text-destructive">
@@ -243,6 +246,7 @@ export function McqForm({
                     )}
                   </div>
                 ))}
+              </RadioGroup>
                 {errors.choices && typeof errors.choices.message === "string" && (
                   <FieldError>{errors.choices.message}</FieldError>
                 )}

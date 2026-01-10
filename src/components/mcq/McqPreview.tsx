@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import type { McqWithChoices, McqAttempt } from "@/lib/schemas/mcq-schema";
 import { CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -96,7 +98,12 @@ export function McqPreview({
           {/* Choices */}
           <div>
             <h3 className="mb-4 text-lg font-semibold">Select an Answer</h3>
-            <div className="space-y-3">
+            <RadioGroup
+              value={selectedChoiceId || ""}
+              onValueChange={setSelectedChoiceId}
+              disabled={hasSubmitted}
+              className="space-y-3"
+            >
               {mcq.choices.map((choice, index) => {
                 const isSelected = selectedChoiceId === choice.id;
                 const showFeedback =
@@ -105,10 +112,10 @@ export function McqPreview({
                   (choice.id === lastAttempt.selectedChoiceId || choice.isCorrect);
 
                 return (
-                  <label
+                  <div
                     key={choice.id}
                     className={cn(
-                      "flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors",
+                      "flex items-start gap-3 rounded-lg border p-4 transition-colors",
                       isSelected && "border-primary bg-primary/5",
                       !hasSubmitted && "hover:bg-accent",
                       showFeedback &&
@@ -119,16 +126,15 @@ export function McqPreview({
                             : "")
                     )}
                   >
-                    <input
-                      type="radio"
-                      name="choice"
+                    <RadioGroupItem
                       value={choice.id}
-                      checked={isSelected}
-                      onChange={(e) => setSelectedChoiceId(e.target.value)}
-                      disabled={hasSubmitted}
-                      className="mt-1 size-4"
+                      id={`preview-choice-${choice.id}`}
+                      className="mt-1"
                     />
-                    <div className="flex-1">
+                    <Label
+                      htmlFor={`preview-choice-${choice.id}`}
+                      className="flex-1 cursor-pointer"
+                    >
                       <div className="flex items-center gap-2">
                         <span className="font-medium">
                           {String.fromCharCode(65 + index)}.
@@ -143,11 +149,11 @@ export function McqPreview({
                             <XCircle className="ml-auto size-5 text-red-600 dark:text-red-400" />
                           )}
                       </div>
-                    </div>
-                  </label>
+                    </Label>
+                  </div>
                 );
               })}
-            </div>
+            </RadioGroup>
           </div>
 
           {/* Feedback */}

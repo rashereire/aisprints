@@ -236,19 +236,14 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldError errors={errors.confirmPassword ? [errors.confirmPassword] : []} />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
-            <FieldGroup>
-              <Field>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating Account..." : "Create Account"}
-                </Button>
-                <Button variant="outline" type="button" disabled>
-                  Sign up with Google
-                </Button>
-                <FieldDescription className="px-6 text-center">
-                  Already have an account? <Link href="/login" className="underline underline-offset-4 hover:text-primary">Sign in</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
+            <Field>
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Creating Account..." : "Create Account"}
+              </Button>
+              <FieldDescription className="text-center">
+                Already have an account? <Link href="/login" className="underline underline-offset-4 hover:text-primary">Sign in</Link>
+              </FieldDescription>
+            </Field>
           </FieldGroup>
         </form>
       </CardContent>
