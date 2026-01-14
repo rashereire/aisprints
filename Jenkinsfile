@@ -22,6 +22,13 @@
 
 pipeline {
     agent any
+    
+    // Configure tools (Node.js via NodeJS Plugin)
+    // Note: Configure Node.js in Jenkins: Manage Jenkins → Global Tool Configuration → NodeJS
+    // Name it "NodeJS-20" or update the name below to match your configuration
+    tools {
+        nodejs 'NodeJS-20'  // This name must match the Node.js installation name in Jenkins
+    }
 
     // Pipeline parameters for flexible execution
     parameters {
@@ -54,9 +61,6 @@ pipeline {
 
     // Environment variables available to all stages
     environment {
-        // Node.js version (configure via NodeJS Plugin)
-        NODEJS_VERSION = '20'
-        
         // Project directories
         WORKSPACE_DIR = "${WORKSPACE}"
         TEST_RESULTS_DIR = "${WORKSPACE}/test-results"
@@ -104,7 +108,6 @@ pipeline {
                 script {
                     echo "Setting up build environment..."
                     echo "Environment: ${params.ENVIRONMENT}"
-                    echo "Node.js Version: ${NODEJS_VERSION}"
                 }
                 
                 // Use Node.js from Jenkins NodeJS Plugin
