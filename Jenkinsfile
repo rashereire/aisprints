@@ -149,7 +149,7 @@ pipeline {
 
         stage('Unit Tests') {
             when {
-                not { params.SKIP_UNIT_TESTS }
+                expression { !params.SKIP_UNIT_TESTS }
             }
             steps {
                 script {
@@ -177,7 +177,7 @@ pipeline {
                     script {
                         // If JUnit XML exists, publish it
                         if (fileExists("${TEST_RESULTS_DIR}/unit-tests.xml")) {
-                            junit testResultsPattern: 'test-results/unit-tests.xml', allowEmptyResults: true
+                            junit testResults: 'test-results/unit-tests.xml', allowEmptyResults: true
                         } else {
                             echo "JUnit XML not found. Install vitest-junit-reporter for XML reports."
                             echo "Test results available in: test-results/unit-tests-output.txt"
@@ -262,7 +262,7 @@ pipeline {
             post {
                 always {
                     // Archive integration test results
-                    junit testResultsPattern: 'test-results/integration-*.xml', allowEmptyResults: true
+                    junit testResults: 'test-results/integration-*.xml', allowEmptyResults: true
                 }
             }
         }
