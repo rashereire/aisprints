@@ -79,25 +79,9 @@ pipeline {
                     echo "Checking out branch: ${params.BRANCH}"
                 }
                 // Checkout the specified branch
+                // Note: The branch is configured in Jenkins job settings (SCM section)
+                // This will checkout the branch specified in the job configuration
                 checkout scm
-                
-                // Switch to the requested branch if different from default
-                script {
-                    def currentBranch = sh(
-                        script: 'git rev-parse --abbrev-ref HEAD',
-                        returnStdout: true
-                    ).trim()
-                    
-                    if (currentBranch != params.BRANCH) {
-                        echo "Switching from ${currentBranch} to ${params.BRANCH}"
-                        sh "git checkout ${params.BRANCH} || git checkout -b ${params.BRANCH} origin/${params.BRANCH}"
-                    }
-                    
-                    // Fetch latest changes
-                    sh 'git fetch origin'
-                    sh "git checkout ${params.BRANCH}"
-                    sh 'git pull origin ${params.BRANCH} || true'
-                }
                 
                 // Display git information
                 script {
