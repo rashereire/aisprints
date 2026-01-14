@@ -124,15 +124,7 @@ export function LoginForm({
               <FieldError errors={errors.usernameOrEmail ? [errors.usernameOrEmail] : []} />
             </Field>
             <Field>
-              <div className="flex items-center">
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
               <Input
                 id="password"
                 type="password"
@@ -148,6 +140,11 @@ export function LoginForm({
               </Button>
               <FieldDescription className="text-center">
                 Don&apos;t have an account? <Link href="/signup" className="underline underline-offset-4 hover:text-primary">Sign up</Link>
+              </FieldDescription>
+              <FieldDescription className="text-center">
+                <Link href="#" className="underline underline-offset-4 hover:text-primary">
+                  Forgot your password?
+                </Link>
               </FieldDescription>
             </Field>
           </FieldGroup>

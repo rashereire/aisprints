@@ -63,6 +63,127 @@ vi.mock("@/lib/d1-client", () => ({
 - Test user ownership validation
 - Test cascade operations and data integrity
 
+### Mocking D1 Database Interface
+
+When testing services that use D1Database, mock the `@/lib/d1-client` module completely:
+
+```typescript
+import { vi } from 'vitest';
+import {
+  executeQuery,
+  executeQueryFirst,
+  executeMutation,
+  executeBatch,
+  generateId,
+} from '@/lib/d1-client';
+
+vi.mock('@/lib/d1-client', () => ({
+  executeQuery: vi.fn(),
+  executeQueryFirst: vi.fn(),
+  executeMutation: vi.fn(),
+  executeBatch: vi.fn(),
+  generateId: vi.fn(() => 'mock-id-123'),
+  getDatabase: vi.fn(),
+}));
+
+// Mock D1Database instance (if needed)
+const mockDb = {} as D1Database;
+```
+
+### Test Data Structure Helpers
+
+Create helper functions to generate mock database structures (snake_case) and transformed structures (camelCase):
+
+```typescript
+// Mock database structures (snake_case - matches database schema)
+const mockDbRecord = {
+  id: 'record-id-123',
+  created_by_user_id: 'user-id-123',
+  created_at: '2025-01-01T00:00:00Z',
+  updated_at: '2025-01-01T00:00:00Z',
+  is_correct: 1, // 0 or 1 in database
+  // ... other snake_case fields
+};
+
+// Transformed structure (camelCase - matches TypeScript types)
+const mockTransformedRecord = {
+  id: 'record-id-123',
+  createdByUserId: 'user-id-123',
+  createdAt: '2025-01-01T00:00:00Z',
+  updatedAt: '2025-01-01T00:00:00Z',
+  isCorrect: true, // boolean in TypeScript
+  // ... other camelCase fields
+};
+```
+
+### Test Parameter Binding and Normalization
+
+When testing database operations, verify:
+- ✅ Anonymous `?` placeholders are used (not numbered `?1`, `?2`)
+- ✅ Parameters are bound correctly to placeholders
+- ✅ Parameter order matches SQL placeholder order
+- ✅ `normalizePlaceholders` function is called (handled by d1-client)
+
+```typescript
+// Verify executeQuery is called with correct SQL and params
+expect(executeQuery).toHaveBeenCalledWith(
+  mockDb,
+  expect.stringContaining('SELECT * FROM table WHERE id = ?'),
+  ['record-id-123']
+);
+
+// Verify executeBatch includes all statements with correct params
+expect(executeBatch).toHaveBeenCalledWith(
+  mockDb,
+  expect.arrayContaining([
+    expect.objectContaining({
+      sql: expect.stringContaining('INSERT INTO table'),
+      params: expect.arrayContaining(['value1', 'value2']),
+    }),
+  ])
+);
+```
+
+### Test Error Handling and Fallback Mechanisms
+
+Test error scenarios and fallback behavior:
+- ✅ Database query failures propagate correctly
+- ✅ Transaction failures roll back correctly
+- ✅ Permission errors throw appropriate exceptions
+- ✅ Not found scenarios return null or empty arrays
+- ✅ Invalid data scenarios throw validation errors
+- ✅ Fallback mechanisms work when primary path fails
+
+```typescript
+// Test error propagation
+it('should throw error when database query fails', async () => {
+  vi.mocked(executeQuery).mockRejectedValueOnce(new Error('Database error'));
+  
+  await expect(serviceMethod(mockDb, params)).rejects.toThrow('Database error');
+});
+
+// Test fallback behavior
+it('should return empty array when query returns no results', async () => {
+  vi.mocked(executeQuery).mockResolvedValueOnce([]);
+  
+  const result = await serviceMethod(mockDb, params);
+  expect(result).toEqual([]);
+});
+```
+
+### Key Testing Principles for Database Services
+
+1. **Mock the database layer completely** - Never hit real database in unit tests
+2. **Test data transformation** - Verify snake_case ↔ camelCase conversion
+3. **Test boolean conversion** - Verify `is_correct` (0/1) ↔ `isCorrect` (boolean)
+4. **Test transaction integrity** - Verify batch operations include all statements
+5. **Test ownership verification** - Verify permission checks work correctly
+6. **Test edge cases** - Empty results, null values, invalid inputs
+7. **Test error propagation** - Verify errors are thrown correctly
+8. **Verify SQL placeholders** - Ensure anonymous `?` placeholders are used (not numbered)
+9. **Test parameter binding** - Verify parameters match placeholder positions
+10. **Test fallback mechanisms** - Verify error recovery paths work
+
 ### Test Organization
 
 ```typescript

@@ -82,8 +82,9 @@ export function McqTable({
 
   if (isLoading) {
     return (
-      <Card>
-        <Table>
+      <div className="mx-auto w-full max-w-5xl">
+        <Card className="px-6">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
@@ -119,7 +120,8 @@ export function McqTable({
             ))}
           </TableBody>
         </Table>
-      </Card>
+        </Card>
+      </div>
     );
   }
 
@@ -128,8 +130,9 @@ export function McqTable({
   }
 
   return (
-    <Card>
-      <Table>
+    <div className="mx-auto w-full max-w-5xl">
+      <Card className="px-6">
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="h-12">Title</TableHead>
@@ -188,6 +191,7 @@ export function McqTable({
           ))}
         </TableBody>
       </Table>
-    </Card>
+      </Card>
+    </div>
   );
 }

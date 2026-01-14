@@ -15,9 +15,14 @@ body {
 }
 
 * {
+  /* Use border-box globally for more predictable layouts */
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  /* IMPORTANT (shadcn + Tailwind layout):
+     Do NOT globally reset margin/padding here (e.g. `margin: 0; padding: 0;`).
+     That would override Tailwind/shadcn layout utilities such as
+     `container`, `mx-auto`, and `max-w-*` and cause pages like the
+     MCQ listing and MCQ create screens to appear left-justified instead
+     of centered. */
 }
 
 a {

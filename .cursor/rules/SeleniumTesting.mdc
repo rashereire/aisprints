@@ -1,0 +1,107 @@
+# SeleniumTesting.mdc
+# Strong Guidance – Preferred Patterns
+
+This document provides strong guidance for Selenium-based UI automation.
+Rules are phrased as SHOULD / SHOULD NOT and represent preferred patterns for Cursor.
+
+---
+
+## Core Principles
+- Tests SHOULD be deterministic and stable
+- UI automation SHOULD validate user behavior, not business logic
+- CI execution SHOULD be the primary mode
+
+---
+
+## Preferred Stack
+- Java + TestNG
+- Selenium WebDriver
+- Maven + Jenkins
+- Page Object Model
+- Allure Reporting
+- JIRA (Xray or Zephyr Scale)
+- axe-core for accessibility
+
+---
+
+## Canonical Project Structure
+```text
+src/test/java
+ ├─ base
+ ├─ pages
+ ├─ tests
+ └─ utils
+```
+
+---
+
+## Driver Factory (Canonical)
+```java
+public class DriverFactory {
+  public static WebDriver create(String browser) {
+    if (browser.equals("chrome")) {
+      return new ChromeDriver();
+    }
+    if (browser.equals("firefox")) {
+      return new FirefoxDriver();
+    }
+    throw new IllegalArgumentException("Unsupported browser");
+  }
+}
+```
+
+---
+
+## Page Object Example
+```java
+public class LoginPage {
+  private By username = By.id("username");
+
+  public LoginPage enterUsername(String value) {
+    driver.findElement(username).sendKeys(value);
+    return this;
+  }
+}
+```
+
+---
+
+## Locator Guidance
+Preferred order:
+1. data-testid
+2. stable id
+3. accessible attributes
+4. CSS
+5. XPath (last resort)
+
+---
+
+## Explicit Wait Example
+```java
+new WebDriverWait(driver, Duration.ofSeconds(10))
+  .until(ExpectedConditions.visibilityOf(element));
+```
+
+---
+
+## Accessibility (axe-core)
+```java
+Results results = new AxeBuilder().analyze(driver);
+assertTrue(results.getViolations().isEmpty());
+```
+
+---
+
+## Reporting (Allure)
+```java
+Allure.addAttachment("Screenshot",
+  new ByteArrayInputStream(screenshotBytes));
+```
+
+---
+
+## JIRA Mapping
+```java
+@Test(description = "XRAY-123 Verify login")
+```
+---

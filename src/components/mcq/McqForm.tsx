@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { mcqCreateSchema, type McqCreateInput, type McqWithChoices } from "@/lib/schemas/mcq-schema";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TeksMcqGeneratorDialog } from "./TeksMcqGeneratorDialog";
 
 interface McqFormProps {
   initialData?: McqWithChoices;
@@ -43,6 +45,8 @@ export function McqForm({
   onCancel,
   isSubmitting = false,
 }: McqFormProps) {
+  const [isTeksDialogOpen, setIsTeksDialogOpen] = useState(false);
+
   const {
     register,
     control,
@@ -120,16 +124,70 @@ export function McqForm({
     await onSubmit({ ...data, choices: choicesWithOrder });
   };
 
+  // Handle TEKS-generated MCQ
+  const handleTeksGenerated = (mcq: McqCreateInput) => {
+    console.log('handleTeksGenerated called with MCQ:', mcq);
+    
+    try {
+      // Populate form with generated MCQ
+      console.log('Setting form values...');
+      setValue("title", mcq.title);
+      setValue("description", mcq.description || undefined);
+      setValue("questionText", mcq.questionText);
+      console.log('Form values set');
+      
+      // Remove all existing choices - use a safer approach
+      console.log('Current fields length:', fields.length);
+      // Remove from the end to avoid index shifting issues
+      for (let i = fields.length - 1; i >= 0; i--) {
+        console.log(`Removing field at index ${i}`);
+        remove(i);
+      }
+      console.log('All fields removed');
+      
+      // Add all generated choices
+      console.log('Adding generated choices, count:', mcq.choices.length);
+      mcq.choices.forEach((choice, index) => {
+        console.log(`Adding choice ${index}:`, choice);
+        append({
+          choiceText: choice.choiceText,
+          isCorrect: choice.isCorrect,
+          displayOrder: choice.displayOrder ?? index,
+        });
+      });
+      console.log('All choices added, handleTeksGenerated complete');
+    } catch (error) {
+      console.error('Error in handleTeksGenerated:', error);
+      throw error;
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{initialData ? "Edit MCQ" : "Create MCQ"}</CardTitle>
-        <CardDescription>
-          {initialData
-            ? "Update the multiple choice question details below."
-            : "Fill in the details to create a new multiple choice question."}
-        </CardDescription>
-      </CardHeader>
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{initialData ? "Edit MCQ" : "Create MCQ"}</CardTitle>
+              <CardDescription>
+                {initialData
+                  ? "Update the multiple choice question details below."
+                  : "Fill in the details to create a new multiple choice question."}
+              </CardDescription>
+            </div>
+            {!initialData && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsTeksDialogOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Generate with TEKS
+              </Button>
+            )}
+          </div>
+        </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
           <FieldGroup>
@@ -281,5 +339,15 @@ export function McqForm({
         </form>
       </CardContent>
     </Card>
+    
+    {/* TEKS Generator Dialog */}
+    {!initialData && (
+      <TeksMcqGeneratorDialog
+        open={isTeksDialogOpen}
+        onOpenChange={setIsTeksDialogOpen}
+        onSuccess={handleTeksGenerated}
+      />
+    )}
+    </>
   );
 }

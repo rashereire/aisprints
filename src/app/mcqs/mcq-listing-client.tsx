@@ -142,9 +142,10 @@ export function McqListingClient({
   };
 
   return (
-    <div className="container mx-auto p-6 md:p-10">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-7xl px-6 py-6 md:px-8 md:py-10">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Multiple Choice Questions</h1>
           <p className="text-muted-foreground mt-2">
@@ -155,19 +156,19 @@ export function McqListingClient({
           <Plus className="size-4" />
           Create MCQ
         </Button>
-      </div>
+        </div>
 
-      {/* Search */}
-      <div className="mb-6">
+        {/* Search */}
+        <div className="mb-6">
         <McqSearch
           value={search}
           onChange={handleSearchChange}
           placeholder="Search by title, description, or question text..."
         />
-      </div>
+        </div>
 
-      {/* Table or Empty State */}
-      {!isLoading && mcqs.length === 0 ? (
+        {/* Table or Empty State */}
+        {!isLoading && mcqs.length === 0 ? (
         <McqEmptyState onCreateClick={() => router.push("/mcqs/new")} />
       ) : (
         <>
@@ -187,7 +188,8 @@ export function McqListingClient({
             </div>
           )}
         </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
