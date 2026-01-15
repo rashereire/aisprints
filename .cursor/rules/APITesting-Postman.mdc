@@ -1,0 +1,59 @@
+# APITesting-Postman.mdc
+# Strong Guidance – Preferred Patterns
+
+Guidelines for API automation using Postman and Newman.
+
+---
+
+## Principles
+- APIs SHOULD be tested independently of UI
+- Schema validation SHOULD be enforced
+- Tests SHOULD run via CI
+
+---
+
+## Assertion Example
+```javascript
+pm.test("Status 200", () => {
+  pm.response.to.have.status(200);
+});
+```
+
+---
+
+## Schema Validation
+```javascript
+pm.test("Schema valid", () => {
+  pm.response.to.have.jsonSchema(schema);
+});
+```
+
+---
+
+## Environment Variable Usage
+```javascript
+pm.environment.set("userId", pm.response.json().id);
+```
+
+---
+
+## Newman CLI
+```bash
+newman run collection.json -e env.json --reporters junit,htmlextra
+```
+
+---
+
+## Jenkins Pipeline
+```groovy
+sh 'newman run collection.json --reporters junit'
+```
+
+---
+
+## JIRA Integration
+- JUnit XML published to Jenkins
+- Xray or Zephyr Scale consumes results
+- Retries SHOULD create new executions
+
+---

@@ -1,0 +1,28 @@
+---
+alwaysApply: true
+---
+
+# Cloudflare Worker and Deployment Rules
+
+## `wrangler.jsonrc` Configuration
+
+- **Bindings:** The `wrangler.jsonrc` file must include the `d1_databases` and `service_bindings` for external services.
+- **Compatibility Flags:** Ensure `compatibility_flags` are set appropriately for the target Cloudflare environment:
+  - `nodejs_compat` - Required for Next.js compatibility
+  - `nodejs_compat_populate_process_env` - **REQUIRED** for accessing environment variables from `.dev.vars` via `process.env`
+  - `global_fetch_strictly_public` - For fetch API compatibility
+
+## Environment Variables
+
+- **Local Development**: Store environment variables in `.dev.vars` (gitignored)
+- **Access Pattern**: With `nodejs_compat_populate_process_env` flag, access via `process.env.VARIABLE_NAME`
+- **Important**: The `nodejs_compat_populate_process_env` flag MUST be in `wrangler.jsonc` for `.dev.vars` to be accessible via `process.env`
+- **Production**: Use `wrangler secret put VARIABLE_NAME` for sensitive values (not `.dev.vars`)
+- **Example**: `OPENAI_API_KEY` in `.dev.vars` → accessible as `process.env.OPENAI_API_KEY` (with the flag)
+- **Common Mistake**: Forgetting to add `nodejs_compat_populate_process_env` flag results in `process.env` being undefined/empty
+
+## Deployment
+
+- Use `npm run deploy` to build and deploy the project to Cloudflare.
+- When working with local development, ensure the `.dev.vars` file is correctly configured for local D1 access.
+- **Before deploying**: Set production secrets using `wrangler secret put VARIABLE_NAME` for each sensitive environment variable
