@@ -545,6 +545,9 @@ describe('POST /api/mcqs/generate-teks', () => {
 
     // 🔒 OWASP ERR-004: Verify appropriate HTTP status codes returned
     it('🔒 OWASP ERR-004: should return appropriate HTTP status codes', async () => {
+      // Import ZodError for creating proper error instances
+      const { ZodError } = await import('zod');
+
       // Test various error scenarios
       const testCases = [
         {
@@ -561,8 +564,11 @@ describe('POST /api/mcqs/generate-teks', () => {
         {
           name: 'Validation error',
           setup: () => {
+            const zodError = new ZodError([
+              { path: ['subject'], message: 'Subject is required', code: 'invalid_type' },
+            ]);
             mockTeksSelectionSchema.mockImplementation(() => {
-              throw { issues: [] };
+              throw zodError;
             });
             return createRequest({});
           },
@@ -582,6 +588,14 @@ describe('POST /api/mcqs/generate-teks', () => {
           setup: () => {
             const error: any = new Error('Auth failed');
             error.status = 401;
+            error.response = {
+              data: {
+                error: {
+                  type: 'invalid_request_error',
+                  code: 'invalid_api_key',
+                },
+              },
+            };
             mockGenerateObject.mockRejectedValueOnce(error);
             return createRequest(validTeksSelection);
           },
@@ -594,8 +608,14 @@ describe('POST /api/mcqs/generate-teks', () => {
         process.env.OPENAI_API_KEY = 'sk-test-key';
         mockGetCloudflareContext.mockReturnValue({ env: {} } as any);
         mockTeksSelectionSchema.mockImplementation((v) => v);
+        mockGenerateObject.mockReset();
 
+        // Setup test case (may configure mocks)
         const req = testCase.setup();
+        
+        // If setup configured generateObject mock, ensure it's set
+        // (setup functions that need generateObject will configure it)
+        
         const response = await POST(req);
 
         expect(response.status).toBe(testCase.expectedStatus);
