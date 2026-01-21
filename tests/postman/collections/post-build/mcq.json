@@ -1,0 +1,1255 @@
+{
+	"info": {
+		"name": "Post-Build MCQ Integration Tests",
+		"description": "Phase 2: MCQ CRUD API post-build integration tests for QuizMaker.\n\nCovers MCQ creation, retrieval, update, deletion, and attempts against a running instance.\n\nTest naming convention:\n- \"[Feature] - [Endpoint/Action] - [Scenario / Expected Outcome]\"\nExample: \"MCQ - POST /api/mcqs - valid creation returns 201\".",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "testMcqId",
+			"value": ""
+		},
+		{
+			"key": "testMcqIdForUpdate",
+			"value": ""
+		},
+		{
+			"key": "testMcqIdForDelete",
+			"value": ""
+		},
+		{
+			"key": "testMcqIdForUnauthDelete",
+			"value": ""
+		},
+		{
+			"key": "testMcqIdForAttempt",
+			"value": ""
+		},
+		{
+			"key": "testChoiceId",
+			"value": ""
+		},
+		{
+			"key": "testCorrectChoiceId",
+			"value": ""
+		},
+		{
+			"key": "testCorrectChoiceIdForAttempt",
+			"value": ""
+		},
+		{
+			"key": "testIncorrectChoiceIdForAttempt",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "MCQ - Setup",
+			"item": [
+				{
+					"name": "MCQ - Setup - Login to establish session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verify login succeeded - cookie jar will automatically handle session cookie",
+									"pm.test('Setup login succeeded', function () {",
+									"  pm.response.to.have.status(200);",
+									"  const sessionCookie = pm.cookies.get('session_token');",
+									"  pm.expect(sessionCookie).to.not.be.undefined;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"integration_teacher_1\",\n  \"password\": \"IntegrationTestPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ - Creation",
+			"item": [
+				{
+					"name": "MCQ - POST /api/mcqs - valid creation returns 201",
+					"event": [
+						{
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs - valid creation returns 201",
+									"",
+									"pm.test(\"MCQ - create - status is 201\", function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"MCQ - create - response includes MCQ fields\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('id');",
+									"  pm.expect(json).to.have.property('title');",
+									"  pm.expect(json).to.have.property('questionText');",
+									"  pm.expect(json).to.have.property('choices');",
+									"  pm.expect(json.choices).to.be.an('array');",
+									"  pm.expect(json.choices.length).to.be.at.least(2);",
+									"});",
+									"",
+									"pm.test(\"MCQ - create - exactly one choice is correct\", function () {",
+									"  const json = pm.response.json();",
+									"  const correctCount = json.choices.filter(c => c.isCorrect === true).length;",
+									"  pm.expect(correctCount).to.equal(1);",
+									"});",
+									"",
+									"// Store MCQ ID for subsequent tests",
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('testMcqId', json.id);",
+									"pm.collectionVariables.set('testMcqIdForUpdate', json.id);",
+									"pm.collectionVariables.set('testMcqIdForDelete', json.id);",
+									"",
+									"// Store choice IDs",
+									"if (json.choices && json.choices.length > 0) {",
+									"  const correctChoice = json.choices.find(c => c.isCorrect === true);",
+									"  if (correctChoice) {",
+									"    pm.collectionVariables.set('testCorrectChoiceId', correctChoice.id);",
+									"  }",
+									"  pm.collectionVariables.set('testChoiceId', json.choices[0].id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"INTEGRATION_TEST_MCQ_CREATE_1\",\n  \"description\": \"Test MCQ created by integration tests\",\n  \"questionText\": \"What is 2 + 2?\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 },\n    { \"choiceText\": \"5\", \"isCorrect\": false, \"displayOrder\": 2 },\n    { \"choiceText\": \"6\", \"isCorrect\": false, \"displayOrder\": 3 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs - missing authentication returns 401",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Clear cookie jar for unauthenticated test - use exact domain match",
+									"const baseUrl = pm.environment.get('baseUrl');",
+									"// Clear cookies for the exact domain",
+									"pm.cookies.jar().clear(baseUrl, function(err) {",
+									"  if (err) console.log('Cookie clear error:', err);",
+									"});",
+									"// Also remove any Cookie header that might exist",
+									"pm.request.headers.remove('Cookie');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs - missing authentication returns 401",
+									"",
+									"pm.test(\"MCQ - create - unauthenticated returns 401\", function () {",
+									"  pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"protocolProfileBehavior": {
+							"disableCookies": true
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"questionText\": \"Test question?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs - no correct choice returns 400",
+					"event": [
+						{
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs - no correct choice returns 400",
+									"",
+									"pm.test(\"MCQ - create - no correct choice returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"questionText\": \"Test question?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs - too few choices returns 400",
+					"event": [
+						{
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs - too few choices returns 400",
+									"",
+									"pm.test(\"MCQ - create - too few choices returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"questionText\": \"Test question?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs - missing required fields returns 400",
+					"event": [
+						{
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs - missing required fields returns 400",
+									"",
+									"pm.test(\"MCQ - create - missing title returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"questionText\": \"Test question?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-009: MCQ - POST /api/mcqs - title length limit enforced",
+					"event": [
+						{
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🔒 OWASP INPVAL-009: MCQ - POST /api/mcqs - title length limit enforced",
+									"",
+									"pm.test(\"🔒 OWASP INPVAL-009: title > 200 chars returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"A\".repeat(201),\n  \"questionText\": \"Test question?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ - Retrieval",
+			"item": [
+				{
+					"name": "MCQ - GET /api/mcqs/[id] - valid ID returns 200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Ensure we have a test MCQ ID",
+									"const mcqId = pm.collectionVariables.get('testMcqId');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - GET /api/mcqs/[id] - valid ID returns 200",
+									"",
+									"pm.test(\"MCQ - get by ID - status is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MCQ - get by ID - response includes MCQ and choices\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('id');",
+									"  pm.expect(json).to.have.property('title');",
+									"  pm.expect(json).to.have.property('questionText');",
+									"  pm.expect(json).to.have.property('choices');",
+									"  pm.expect(json.choices).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqId}}"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - GET /api/mcqs/[id] - non-existent ID returns 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - GET /api/mcqs/[id] - non-existent ID returns 404",
+									"",
+									"pm.test(\"MCQ - get by ID - non-existent returns 404\", function () {",
+									"  pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/nonexistent-id-12345",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "nonexistent-id-12345"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - GET /api/mcqs - list with pagination returns 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - GET /api/mcqs - list with pagination returns 200",
+									"",
+									"pm.test(\"MCQ - list - status is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MCQ - list - response has pagination structure\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('data');",
+									"  pm.expect(json).to.have.property('pagination');",
+									"  pm.expect(json.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"MCQ - list - pagination metadata correct\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json.pagination).to.have.property('page');",
+									"  pm.expect(json.pagination).to.have.property('limit');",
+									"  pm.expect(json.pagination).to.have.property('total');",
+									"  pm.expect(json.pagination).to.have.property('totalPages');",
+									"  pm.expect(json.pagination.page).to.be.a('number');",
+									"  pm.expect(json.pagination.limit).to.be.a('number');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "MCQ - GET /api/mcqs - pagination page 2 returns different items",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - GET /api/mcqs - pagination page 2 returns different items",
+									"",
+									"pm.test(\"MCQ - list - page 2 status is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MCQ - list - page 2 has correct page number\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json.pagination.page).to.equal(2);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs?page=2&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "MCQ - GET /api/mcqs - invalid page parameter returns 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - GET /api/mcqs - invalid page parameter returns 400",
+									"",
+									"pm.test(\"MCQ - list - invalid page returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs?page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "MCQ - GET /api/mcqs - search parameter filters results",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - GET /api/mcqs - search parameter filters results",
+									"",
+									"pm.test(\"MCQ - list - search returns 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MCQ - list - search response has correct structure\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('data');",
+									"  pm.expect(json).to.have.property('pagination');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs?search=INTEGRATION_TEST",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"],
+							"query": [
+								{
+									"key": "search",
+									"value": "INTEGRATION_TEST"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ - Update",
+			"item": [
+				{
+					"name": "MCQ - PUT /api/mcqs/[id] - owner update returns 200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const mcqId = pm.collectionVariables.get('testMcqIdForUpdate');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - PUT /api/mcqs/[id] - owner update returns 200",
+									"",
+									"pm.test(\"MCQ - update - owner returns 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MCQ - update - response includes updated fields\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('id');",
+									"  pm.expect(json.title).to.equal('INTEGRATION_TEST_MCQ_UPDATED');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"INTEGRATION_TEST_MCQ_UPDATED\",\n  \"description\": \"Updated description\",\n  \"questionText\": \"What is 2 + 2? (Updated)\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 },\n    { \"choiceText\": \"5\", \"isCorrect\": false, \"displayOrder\": 2 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForUpdate}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForUpdate}}"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - PUT /api/mcqs/[id] - missing authentication returns 401",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const mcqId = pm.collectionVariables.get('testMcqId');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
+									"}",
+									"// Clear cookie jar for unauthenticated test - use exact domain match",
+									"const baseUrl = pm.environment.get('baseUrl');",
+									"pm.cookies.jar().clear(baseUrl, function(err) {",
+									"  if (err) console.log('Cookie clear error:', err);",
+									"});",
+									"pm.request.headers.remove('Cookie');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - PUT /api/mcqs/[id] - missing authentication returns 401",
+									"",
+									"pm.test(\"MCQ - update - unauthenticated returns 401\", function () {",
+									"  pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"protocolProfileBehavior": {
+							"disableCookies": true
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test Update\",\n  \"questionText\": \"Test?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqId}}"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - PUT /api/mcqs/[id] - non-existent ID returns 404",
+					"event": [
+						{
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - PUT /api/mcqs/[id] - non-existent ID returns 404",
+									"",
+									"pm.test(\"MCQ - update - non-existent returns 404\", function () {",
+									"  pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test Update\",\n  \"questionText\": \"Test?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/nonexistent-id-12345",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "nonexistent-id-12345"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - PUT /api/mcqs/[id] - invalid update data returns 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const mcqId = pm.collectionVariables.get('testMcqId');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - PUT /api/mcqs/[id] - invalid update data returns 400",
+									"",
+									"pm.test(\"MCQ - update - no correct choice returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test Update\",\n  \"questionText\": \"Test?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ - Deletion",
+			"item": [
+				{
+					"name": "MCQ - DELETE /api/mcqs/[id] - owner deletion returns 200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const mcqId = pm.collectionVariables.get('testMcqIdForDelete');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - DELETE /api/mcqs/[id] - owner deletion returns 200",
+									"",
+									"pm.test(\"MCQ - delete - owner returns 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MCQ - delete - response confirms deletion\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('message');",
+									"});",
+									"",
+									"pm.test(\"MCQ - delete - MCQ no longer accessible\", function () {",
+									"  // Verify MCQ is deleted by trying to fetch it",
+									"  const sessionCookie = pm.cookies.get('session_token');",
+									"  pm.sendRequest({",
+									"    url: pm.environment.get('baseUrl') + '/api/mcqs/' + pm.collectionVariables.get('testMcqIdForDelete'),",
+									"    method: 'GET',",
+									"    header: {",
+									"      'Cookie': 'session_token=' + sessionCookie",
+									"    }",
+									"  }, function(err, response) {",
+									"    pm.expect(response.code).to.equal(404);",
+									"  });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForDelete}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForDelete}}"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - DELETE /api/mcqs/[id] - missing authentication returns 401",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Create a new MCQ first for this test",
+									"const sessionCookie = pm.cookies.get('session_token');",
+									"if (!sessionCookie) {",
+									"  throw new Error('No session cookie found. Run setup login first.');",
+									"}",
+									"pm.sendRequest({",
+									"  url: pm.environment.get('baseUrl') + '/api/mcqs',",
+									"  method: 'POST',",
+									"  header: {",
+									"    'Content-Type': 'application/json',",
+									"    'Cookie': 'session_token=' + sessionCookie",
+									"  },",
+									"  body: {",
+									"    mode: 'raw',",
+									"    raw: JSON.stringify({",
+									"      title: 'INTEGRATION_TEST_MCQ_DELETE_UNAUTH',",
+									"      questionText: 'Test?',",
+									"      choices: [",
+									"        { choiceText: 'A', isCorrect: true, displayOrder: 0 },",
+									"        { choiceText: 'B', isCorrect: false, displayOrder: 1 }",
+									"      ]",
+									"    })",
+									"  }",
+									"}, function(err, response) {",
+									"  if (!err && response.code === 201) {",
+									"    const json = response.json();",
+									"    pm.collectionVariables.set('testMcqIdForUnauthDelete', json.id);",
+									"  }",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Clear cookie jar for unauthenticated test - use exact domain match",
+									"const baseUrl = pm.environment.get('baseUrl');",
+									"// Clear cookies for the exact domain",
+									"pm.cookies.jar().clear(baseUrl, function(err) {",
+									"  if (err) console.log('Cookie clear error:', err);",
+									"});",
+									"// Also remove any Cookie header that might exist",
+									"pm.request.headers.remove('Cookie');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - DELETE /api/mcqs/[id] - missing authentication returns 401",
+									"",
+									"pm.test(\"MCQ - delete - unauthenticated returns 401\", function () {",
+									"  pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForUnauthDelete}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForUnauthDelete}}"]
+						},
+						"protocolProfileBehavior": {
+							"disableCookies": true
+						}
+					}
+				},
+				{
+					"name": "MCQ - DELETE /api/mcqs/[id] - non-existent ID returns 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - DELETE /api/mcqs/[id] - non-existent ID returns 404",
+									"",
+									"pm.test(\"MCQ - delete - non-existent returns 404\", function () {",
+									"  pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/nonexistent-id-12345",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "nonexistent-id-12345"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ - Attempt Setup",
+			"item": [
+				{
+					"name": "MCQ - Attempt Setup - Create MCQ for attempt tests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - Attempt Setup - Create MCQ for attempt tests",
+									"",
+									"pm.test('Setup MCQ creation succeeded', function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Store MCQ ID and choice IDs for attempt tests",
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('testMcqIdForAttempt', json.id);",
+									"",
+									"// Find and store correct and incorrect choice IDs",
+									"const correctChoice = json.choices.find(c => c.isCorrect === true);",
+									"const incorrectChoice = json.choices.find(c => c.isCorrect === false);",
+									"",
+									"if (correctChoice) {",
+									"  pm.collectionVariables.set('testCorrectChoiceIdForAttempt', correctChoice.id);",
+									"}",
+									"",
+									"if (incorrectChoice) {",
+									"  pm.collectionVariables.set('testIncorrectChoiceIdForAttempt', incorrectChoice.id);",
+									"}",
+									"",
+									"pm.test('Setup MCQ has correct and incorrect choices', function () {",
+									"  pm.expect(correctChoice).to.not.be.undefined;",
+									"  pm.expect(incorrectChoice).to.not.be.undefined;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"INTEGRATION_TEST_MCQ_ATTEMPT\",\n  \"questionText\": \"What is 2 + 2?\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 },\n    { \"choiceText\": \"5\", \"isCorrect\": false, \"displayOrder\": 2 },\n    { \"choiceText\": \"6\", \"isCorrect\": false, \"displayOrder\": 3 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ - Attempt",
+			"item": [
+				{
+					"name": "MCQ - POST /api/mcqs/[id]/attempt - correct answer returns 201",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Verify MCQ ID is set from setup request",
+									"const mcqId = pm.collectionVariables.get('testMcqIdForAttempt');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run MCQ - Attempt Setup first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs/[id]/attempt - correct answer returns 201",
+									"",
+									"pm.test(\"MCQ - attempt - correct answer returns 201\", function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"MCQ - attempt - response includes attempt fields\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('id');",
+									"  pm.expect(json).to.have.property('mcqId');",
+									"  pm.expect(json).to.have.property('selectedChoiceId');",
+									"  pm.expect(json).to.have.property('isCorrect');",
+									"});",
+									"",
+									"pm.test(\"MCQ - attempt - correct answer marked as correct\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json.isCorrect).to.equal(true);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"selectedChoiceId\": \"{{testCorrectChoiceIdForAttempt}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForAttempt}}/attempt",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForAttempt}}", "attempt"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs/[id]/attempt - incorrect answer returns 201",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Verify MCQ ID and incorrect choice ID are set from setup request",
+									"const mcqId = pm.collectionVariables.get('testMcqIdForAttempt');",
+									"const incorrectChoiceId = pm.collectionVariables.get('testIncorrectChoiceIdForAttempt');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run MCQ - Attempt Setup first.');",
+									"}",
+									"if (!incorrectChoiceId) {",
+									"  throw new Error('No incorrect choice ID found. Run MCQ - Attempt Setup first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs/[id]/attempt - incorrect answer returns 201",
+									"",
+									"pm.test(\"MCQ - attempt - incorrect answer returns 201\", function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"MCQ - attempt - incorrect answer marked as incorrect\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json.isCorrect).to.equal(false);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"selectedChoiceId\": \"{{testIncorrectChoiceIdForAttempt}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForAttempt}}/attempt",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForAttempt}}", "attempt"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs/[id]/attempt - invalid choice ID returns 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Verify MCQ ID is set from setup request",
+									"const mcqId = pm.collectionVariables.get('testMcqIdForAttempt');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run MCQ - Attempt Setup first.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs/[id]/attempt - invalid choice ID returns 400",
+									"",
+									"pm.test(\"MCQ - attempt - invalid choice returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"selectedChoiceId\": \"invalid-choice-id-12345\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForAttempt}}/attempt",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForAttempt}}", "attempt"]
+						}
+					}
+				},
+				{
+					"name": "MCQ - POST /api/mcqs/[id]/attempt - missing authentication returns 401",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Verify MCQ ID is set from setup request",
+									"const mcqId = pm.collectionVariables.get('testMcqIdForAttempt');",
+									"if (!mcqId) {",
+									"  throw new Error('No test MCQ ID found. Run MCQ - Attempt Setup first.');",
+									"}",
+									"// Clear cookie jar for unauthenticated test - use exact domain match",
+									"const baseUrl = pm.environment.get('baseUrl');",
+									"pm.cookies.jar().clear(baseUrl, function(err) {",
+									"  if (err) console.log('Cookie clear error:', err);",
+									"});",
+									"pm.request.headers.remove('Cookie');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// MCQ - POST /api/mcqs/[id]/attempt - missing authentication returns 401",
+									"",
+									"pm.test(\"MCQ - attempt - unauthenticated returns 401\", function () {",
+									"  pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"protocolProfileBehavior": {
+							"disableCookies": true
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"selectedChoiceId\": \"{{testCorrectChoiceIdForAttempt}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForAttempt}}/attempt",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "{{testMcqIdForAttempt}}", "attempt"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

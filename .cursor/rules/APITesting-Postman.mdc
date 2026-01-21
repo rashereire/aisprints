@@ -9,7 +9,11 @@ Guidelines for API automation using Postman and Newman.
 - APIs SHOULD be tested independently of UI
 - Schema validation SHOULD be enforced
 - Tests SHOULD run via CI
+ou truly want zero HTTP traffic for these pre-build checks, you’d need to change the collection so that:
 
+•  Requests don’t point to a real backend (e.g., use a dummy URL), or
+•  Move validation into separate requests that don’t depend on calling your real API, or
+•  Run these validations in a pure JS test runner instead of Newman.
 ---
 
 ## Assertion Example
@@ -55,5 +59,13 @@ sh 'newman run collection.json --reporters junit'
 - JUnit XML published to Jenkins
 - Xray or Zephyr Scale consumes results
 - Retries SHOULD create new executions
+
+---
+
+## Cookie Management Best Practices
+- **Use Postman's cookie jar**: Let Postman automatically store and send cookies from `Set-Cookie` responses. Avoid manually setting `Cookie` headers.
+- **Setup login at collection start**: Add a setup request that logs in and captures the session cookie. The cookie jar will automatically send it to subsequent requests.
+- **Use `disableCookies: true` for unauthenticated tests**: Set `"protocolProfileBehavior": { "disableCookies": true }` on requests that should test unauthenticated access.
+- **Clear cookies with exact domain match**: When clearing cookies for unauthenticated tests, use `pm.cookies.jar().clear(baseUrl, callback)` where `baseUrl` comes from environment variables, not `pm.request.url.toString()`. This ensures exact domain matching.
 
 ---
