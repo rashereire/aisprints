@@ -283,13 +283,18 @@ pipeline {
                     try {
                         sh """
                             cd tests/ui
+                            
+                            # Create output directory if it doesn't exist
+                            mkdir -p \${UI_TEST_REPORT}
+                            
                             echo "BASE_URL: \${BASE_URL}"
                             echo "CI mode: \${CI}"
                             echo "Headless mode: \${HEADLESS}"
                             echo "Running: ${testCommand}"
                             
                             # Run tests and capture exit code
-                            ${testCommand} 2>&1 | tee \${WORKSPACE}/\${UI_TEST_REPORT}/ui-tests-output.txt
+                            # Note: UI_TEST_REPORT already includes full path, don't prefix with WORKSPACE
+                            ${testCommand} 2>&1 | tee \${UI_TEST_REPORT}/ui-tests-output.txt
                             TEST_EXIT_CODE=\${PIPESTATUS[0]}
                             
                             if [ \$TEST_EXIT_CODE -ne 0 ]; then
@@ -318,15 +323,21 @@ pipeline {
                         archiveArtifacts artifacts: 'test-results/ui-tests/**/*', allowEmptyArchive: true
                         archiveArtifacts artifacts: 'tests/ui/reports/**/*', allowEmptyArchive: true
                         
-                        // Publish HTML report if available
+                        // Publish HTML report if available (optional - requires HTML Publisher Plugin)
                         if (fileExists("${UI_TEST_REPORT}/test-results.html")) {
-                            publishHTML([
-                                reportName: 'UI Test Results',
-                                reportDir: "${UI_TEST_REPORT}",
-                                reportFiles: 'test-results.html',
-                                keepAll: true,
-                                alwaysLinkToLastBuild: true
-                            ])
+                            try {
+                                publishHTML([
+                                    reportName: 'UI Test Results',
+                                    reportDir: "${UI_TEST_REPORT}",
+                                    reportFiles: 'test-results.html',
+                                    keepAll: true,
+                                    alwaysLinkToLastBuild: true
+                                ])
+                            } catch (Exception e) {
+                                echo "Warning: HTML Publisher Plugin not available. Skipping HTML report publishing."
+                                echo "Error: ${e.getMessage()}"
+                                // Continue execution - this is not a critical failure
+                            }
                         }
                     }
                 }
