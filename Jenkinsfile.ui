@@ -174,7 +174,7 @@ pipeline {
                         echo "Waiting for server to be ready on ${BASE_URL}..."
                         for i in {1..60}; do
                             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${BASE_URL} || echo "000")
-                            if echo "$HTTP_CODE" | grep -q "200\|301\|302\|307"; then
+                            if echo "$HTTP_CODE" | grep -qE "200|301|302|307"; then
                                 echo "Server is ready! (HTTP $HTTP_CODE)"
                                 break
                             fi
