@@ -1,0 +1,400 @@
+/**
+ * Jenkins Pipeline for QuizMaker UI Tests
+ * 
+ * This is a separate pipeline dedicated to running Selenium UI tests.
+ * It should be configured as a separate Jenkins job from the main build pipeline.
+ * 
+ * This pipeline handles:
+ * - Application build and preview server startup
+ * - UI test execution (Selenium WebDriver) with selectable test groups
+ * - Test report generation and archiving
+ * 
+ * Usage:
+ * - Run manually: Jenkins UI → Build with Parameters
+ * - Schedule: Configure in Jenkins job settings (Build Triggers → Build periodically)
+ * - Example schedule: H 3 * * * (runs daily at 3 AM)
+ * 
+ * Prerequisites:
+ * - Node.js installed on Jenkins agent (configure via NodeJS Plugin)
+ * - Chrome/Chromium browser installed on Jenkins agent
+ * - Sufficient disk space for build artifacts
+ * 
+ * Configuration:
+ * - Create a new Jenkins Pipeline job
+ * - Set Pipeline script from SCM
+ * - Point to this repository
+ * - Set Script Path to: Jenkinsfile.ui
+ */
+
+pipeline {
+    agent any
+    
+    // Configure tools (Node.js via NodeJS Plugin)
+    // Note: Configure Node.js in Jenkins: Manage Jenkins → Global Tool Configuration → NodeJS
+    // Name it "NodeJS-20" or update the name below to match your configuration
+    tools {
+        nodejs 'NodeJS-20'  // This name must match the Node.js installation name in Jenkins
+    }
+
+    // Pipeline parameters for flexible test execution
+    parameters {
+        choice(
+            name: 'TEST_GROUP',
+            choices: [
+                'all',
+                'smoke',
+                'regression',
+                'security',
+                'auth',
+                'auth-smoke',
+                'auth-regression',
+                'auth-security'
+            ],
+            description: 'Select which group of UI tests to run'
+        )
+        choice(
+            name: 'BRANCH',
+            choices: ['main', 'develop'],
+            description: 'Git branch to checkout'
+        )
+        booleanParam(
+            name: 'SKIP_BUILD',
+            defaultValue: false,
+            description: 'Skip build step (use if application is already running)'
+        )
+        string(
+            name: 'BASE_URL',
+            defaultValue: 'http://localhost:3000',
+            description: 'Base URL for the application (default: http://localhost:3000)'
+        )
+    }
+
+    // Environment variables available to all stages
+    environment {
+        // Project directories
+        WORKSPACE_DIR = "${WORKSPACE}"
+        TEST_RESULTS_DIR = "${WORKSPACE}/test-results"
+        UI_TEST_REPORT = "${TEST_RESULTS_DIR}/ui-tests"
+        
+        // Build artifacts
+        BUILD_DIR = "${WORKSPACE}/.next"
+        OPENNEXT_DIR = "${WORKSPACE}/.open-next"
+    }
+
+    // Pipeline stages
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    echo "Checking out branch: ${params.BRANCH}"
+                }
+                
+                // Checkout the specified branch
+                checkout scm
+                
+                // Display git information
+                script {
+                    def gitCommit = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                    def gitBranch = sh(
+                        script: 'git rev-parse --abbrev-ref HEAD',
+                        returnStdout: true
+                    ).trim()
+                    echo "Git Commit: ${gitCommit}"
+                    echo "Git Branch: ${gitBranch}"
+                }
+            }
+        }
+
+        stage('Setup') {
+            steps {
+                script {
+                    echo "Setting up UI test environment..."
+                    echo "Test Group: ${params.TEST_GROUP}"
+                    echo "Base URL: ${params.BASE_URL}"
+                }
+                
+                // Use Node.js from Jenkins NodeJS Plugin
+                sh '''
+                    node --version
+                    npm --version
+                '''
+                
+                // Create test results directory
+                sh 'mkdir -p ${TEST_RESULTS_DIR}'
+                sh 'mkdir -p ${UI_TEST_REPORT}'
+                
+                // Install main project dependencies
+                sh 'npm ci'
+            }
+        }
+
+        stage('Build Application') {
+            when {
+                expression { !params.SKIP_BUILD }
+            }
+            steps {
+                script {
+                    echo "Building Next.js application for UI tests..."
+                }
+                
+                // Build Next.js (includes prebuild which runs tests)
+                sh 'npm run build'
+                
+                // Build OpenNext bundle for Cloudflare Workers
+                sh 'npm run opennext-build'
+                
+                script {
+                    echo "Build completed successfully"
+                }
+            }
+        }
+
+        stage('Start Preview Server') {
+            when {
+                expression { !params.SKIP_BUILD }
+            }
+            steps {
+                script {
+                    echo "Starting preview server for UI tests..."
+                }
+                
+                // Start preview server in background
+                script {
+                    sh '''
+                        echo "Starting preview server..."
+                        npm run preview > ${WORKSPACE}/preview-server.log 2>&1 &
+                        PREVIEW_PID=$!
+                        echo $PREVIEW_PID > ${WORKSPACE}/preview-server.pid
+                        echo "Preview server started with PID: $PREVIEW_PID"
+                        
+                        # Wait for server to be ready (max 5 minutes)
+                        echo "Waiting for server to be ready on ${BASE_URL}..."
+                        for i in {1..60}; do
+                            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${BASE_URL} || echo "000")
+                            if echo "$HTTP_CODE" | grep -q "200\|301\|302\|307"; then
+                                echo "Server is ready! (HTTP $HTTP_CODE)"
+                                break
+                            fi
+                            if [ $i -eq 60 ]; then
+                                echo "Server failed to start within 5 minutes"
+                                echo "Last HTTP code: $HTTP_CODE"
+                                echo "Preview server log:"
+                                tail -50 ${WORKSPACE}/preview-server.log || echo "Log file not found"
+                                exit 1
+                            fi
+                            echo "Waiting... ($i/60) - HTTP code: $HTTP_CODE"
+                            sleep 5
+                        done
+                    '''
+                }
+            }
+        }
+
+        stage('Setup UI Tests') {
+            steps {
+                script {
+                    echo "Setting up UI test dependencies..."
+                }
+                
+                // Verify Chrome browser is available
+                sh '''
+                    if ! command -v google-chrome &> /dev/null && ! command -v chromium-browser &> /dev/null && ! command -v chromium &> /dev/null; then
+                        echo "Warning: Chrome/Chromium not found in PATH"
+                        echo "Checking for Chrome in common locations..."
+                        ls -la /usr/bin/google-chrome* || echo "Chrome not found in /usr/bin"
+                        ls -la /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome || echo "Chrome not found in /Applications (macOS)"
+                    else
+                        echo "Chrome browser found"
+                    fi
+                '''
+                
+                // Install UI test dependencies
+                sh '''
+                    cd tests/ui
+                    echo "Installing UI test dependencies..."
+                    npm ci
+                    echo "UI test dependencies installed"
+                '''
+            }
+        }
+
+        stage('Run UI Tests') {
+            steps {
+                script {
+                    echo "Running UI tests..."
+                    echo "Test Group: ${params.TEST_GROUP}"
+                    echo "Base URL: ${params.BASE_URL}"
+                }
+                
+                // Determine test command based on selected group
+                script {
+                    def testCommand = ''
+                    def testDescription = ''
+                    
+                    switch(params.TEST_GROUP) {
+                        case 'all':
+                            testCommand = 'npm run test:selenium'
+                            testDescription = 'All UI tests'
+                            break
+                        case 'smoke':
+                            testCommand = 'npm run test:selenium:smoke'
+                            testDescription = 'Smoke tests only (@Smoke tag)'
+                            break
+                        case 'regression':
+                            testCommand = 'npm run test:selenium -- --testNamePattern="Regression"'
+                            testDescription = 'Regression tests only'
+                            break
+                        case 'security':
+                            testCommand = 'npm run test:selenium -- --testNamePattern="@Security"'
+                            testDescription = 'Security tests only (@Security tag)'
+                            break
+                        case 'auth':
+                            testCommand = 'npm run test:selenium -- tests/auth'
+                            testDescription = 'All authentication tests'
+                            break
+                        case 'auth-smoke':
+                            testCommand = 'npm run test:selenium:smoke -- tests/auth'
+                            testDescription = 'Authentication smoke tests'
+                            break
+                        case 'auth-regression':
+                            testCommand = 'npm run test:selenium -- --testNamePattern="Regression" tests/auth'
+                            testDescription = 'Authentication regression tests'
+                            break
+                        case 'auth-security':
+                            testCommand = 'npm run test:selenium -- --testNamePattern="@Security" tests/auth'
+                            testDescription = 'Authentication security tests'
+                            break
+                        default:
+                            testCommand = 'npm run test:selenium'
+                            testDescription = 'All UI tests (default)'
+                    }
+                    
+                    echo "Test Description: ${testDescription}"
+                    echo "Test Command: ${testCommand}"
+                    
+                    // Set environment variables for UI tests
+                    env.BASE_URL = params.BASE_URL
+                    env.CI = 'true'
+                    env.HEADLESS = 'true'
+                    
+                    try {
+                        sh """
+                            cd tests/ui
+                            echo "BASE_URL: \${BASE_URL}"
+                            echo "CI mode: \${CI}"
+                            echo "Headless mode: \${HEADLESS}"
+                            echo "Running: ${testCommand}"
+                            
+                            # Run tests and capture exit code
+                            ${testCommand} 2>&1 | tee \${WORKSPACE}/\${UI_TEST_REPORT}/ui-tests-output.txt
+                            TEST_EXIT_CODE=\${PIPESTATUS[0]}
+                            
+                            if [ \$TEST_EXIT_CODE -ne 0 ]; then
+                                echo "UI tests failed with exit code: \$TEST_EXIT_CODE"
+                                exit \$TEST_EXIT_CODE
+                            fi
+                        """
+                    } catch (Exception e) {
+                        echo "UI tests failed: ${e.getMessage()}"
+                        error("UI tests failed")
+                    }
+                }
+            }
+            post {
+                always {
+                    // Archive UI test results
+                    script {
+                        // Copy test reports
+                        sh '''
+                            mkdir -p ${UI_TEST_REPORT}
+                            cp -r tests/ui/reports/* ${UI_TEST_REPORT}/ || echo "No reports directory found"
+                            cp tests/ui/reports/html-reports/test-results.html ${UI_TEST_REPORT}/test-results.html || echo "No HTML report found"
+                        '''
+                        
+                        // Archive artifacts
+                        archiveArtifacts artifacts: 'test-results/ui-tests/**/*', allowEmptyArchive: true
+                        archiveArtifacts artifacts: 'tests/ui/reports/**/*', allowEmptyArchive: true
+                        
+                        // Publish HTML report if available
+                        if (fileExists("${UI_TEST_REPORT}/test-results.html")) {
+                            publishHTML([
+                                reportName: 'UI Test Results',
+                                reportDir: "${UI_TEST_REPORT}",
+                                reportFiles: 'test-results.html',
+                                keepAll: true,
+                                alwaysLinkToLastBuild: true
+                            ])
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Stop Preview Server') {
+            when {
+                expression { !params.SKIP_BUILD }
+            }
+            steps {
+                script {
+                    echo "Stopping preview server..."
+                }
+                
+                sh '''
+                    if [ -f ${WORKSPACE}/preview-server.pid ]; then
+                        PREVIEW_PID=$(cat ${WORKSPACE}/preview-server.pid)
+                        echo "Stopping preview server (PID: $PREVIEW_PID)..."
+                        kill $PREVIEW_PID 2>/dev/null || echo "Process already stopped or not found"
+                        # Wait a moment for graceful shutdown
+                        sleep 2
+                        # Force kill if still running
+                        kill -9 $PREVIEW_PID 2>/dev/null || echo "Process terminated"
+                        rm -f ${WORKSPACE}/preview-server.pid
+                        echo "Preview server stopped"
+                    else
+                        echo "Preview server PID file not found, attempting to kill any node processes..."
+                        pkill -f "npm run preview" || echo "No preview server process found"
+                        pkill -f "@opennextjs/cloudflare preview" || echo "No preview server process found"
+                    fi
+                '''
+            }
+        }
+    }
+
+    // Post-build actions
+    post {
+        always {
+            script {
+                echo "UI Test Pipeline execution completed"
+                echo "Test Group: ${params.TEST_GROUP}"
+                echo "Base URL: ${params.BASE_URL}"
+                echo "Build Skipped: ${params.SKIP_BUILD}"
+            }
+            
+            // Archive test results
+            archiveArtifacts artifacts: 'test-results/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'tests/ui/reports/**/*', allowEmptyArchive: true
+            
+            // Archive preview server log if it exists
+            archiveArtifacts artifacts: 'preview-server.log', allowEmptyArchive: true
+        }
+        success {
+            echo "UI Test Pipeline succeeded!"
+        }
+        failure {
+            echo "UI Test Pipeline failed!"
+            // Archive preview server log on failure for debugging
+            script {
+                if (fileExists("${WORKSPACE}/preview-server.log")) {
+                    echo "Preview server log (last 100 lines):"
+                    sh 'tail -100 ${WORKSPACE}/preview-server.log || echo "Could not read log"'
+                }
+            }
+        }
+        unstable {
+            echo "UI Test Pipeline is unstable (some tests failed)"
+        }
+    }
+}

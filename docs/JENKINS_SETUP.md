@@ -230,6 +230,116 @@ The Jenkins pipeline supports the following parameters:
 
 ---
 
+## UI Test Pipeline (Separate Job)
+
+The UI tests run in a **separate Jenkins pipeline** from the main build pipeline. This allows UI tests to be run independently and on different schedules.
+
+### Creating the UI Test Pipeline Job
+
+1. **Create New Item**:
+   - Click "New Item" in Jenkins dashboard
+   - Enter job name: `quizmaker-ui-tests`
+   - Select "Pipeline" as job type
+   - Click "OK"
+
+2. **Configure Pipeline**:
+   - **Pipeline Definition**: Select "Pipeline script from SCM"
+   - **SCM**: Select "Git"
+   - **Repository URL**: `https://github.com/rashereire/aisprints.git`
+   - **Credentials**: Add if repository is private
+   - **Branches to build**: `*/main` or `*/develop` (as needed)
+   - **Script Path**: `Jenkinsfile.ui` (important: different from main pipeline)
+   - Click "Save"
+
+### UI Test Pipeline Parameters
+
+The UI test pipeline supports the following parameters:
+
+#### Test Group Selection
+- **TEST_GROUP**: Select which group of tests to run
+  - `all` - Run all UI tests
+  - `smoke` - Run only smoke tests (@Smoke tag)
+  - `regression` - Run only regression tests
+  - `security` - Run only security tests (@Security tag)
+  - `auth` - Run all authentication tests
+  - `auth-smoke` - Run authentication smoke tests
+  - `auth-regression` - Run authentication regression tests
+  - `auth-security` - Run authentication security tests
+- Default: `all`
+
+#### Configuration
+- **BRANCH**: Git branch to checkout (`main` or `develop`)
+- Default: `main`
+- **SKIP_BUILD**: Skip build step (use if application is already running)
+- Default: `false`
+- **BASE_URL**: Base URL for the application
+- Default: `http://localhost:3000`
+
+### UI Test Pipeline Stages
+
+1. **Checkout**: Checks out code from Git repository
+2. **Setup**: Installs main project dependencies
+3. **Build Application** (optional): Builds Next.js and OpenNext bundle
+4. **Start Preview Server** (optional): Starts preview server and waits for readiness
+5. **Setup UI Tests**: Installs UI test dependencies and verifies Chrome
+6. **Run UI Tests**: Executes selected test group
+7. **Stop Preview Server** (optional): Stops preview server after tests
+
+### Running UI Tests
+
+1. **Open UI Test Pipeline Job**:
+   - Navigate to `quizmaker-ui-tests` job
+   - Click "Build with Parameters"
+   - Select parameters:
+     - Test Group: `all` (or specific group)
+     - Branch: `main`
+     - Skip Build: `false` (unless app is already running)
+     - Base URL: `http://localhost:3000`
+   - Click "Build"
+
+### UI Test Reports
+
+**Location**: `test-results/ui-tests/` and `tests/ui/reports/`  
+**View**: Jenkins → Build → UI Test Results (HTML report) or Artifacts  
+**Format**: HTML report (via Jest HTML Reporter)
+
+**Contents**:
+- Test execution summary
+- Pass/fail status per test
+- Execution time
+- Screenshots (on failure, if configured)
+- Console output: `test-results/ui-tests/ui-tests-output.txt`
+
+**Metrics**:
+- Total tests executed
+- Pass/fail counts
+- Execution time per test
+- Test coverage by feature area
+
+**Prerequisites**:
+- Chrome/Chromium browser installed on Jenkins agent
+- UI test dependencies installed (`tests/ui/npm ci`)
+- Preview server starts automatically before tests (unless SKIP_BUILD=true)
+
+### Scheduling UI Tests
+
+UI tests can be scheduled independently from the main build:
+
+1. **Configure Schedule**:
+   - Open `quizmaker-ui-tests` job
+   - Go to "Configure"
+   - Find "Build Triggers" section
+   - Check "Build periodically"
+   - Enter schedule: `H 3 * * *` (runs daily at 3 AM)
+   - Click "Save"
+
+**Example Schedules**:
+- `H 3 * * *` - Daily at 3 AM
+- `H */6 * * *` - Every 6 hours
+- `H 9,15 * * 1-5` - At 9 AM and 3 PM on weekdays
+
+---
+
 ## Test Reports
 
 ### Unit Test Reports
