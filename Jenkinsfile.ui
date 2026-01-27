@@ -205,7 +205,7 @@ pipeline {
                         echo "Warning: Chrome/Chromium not found in PATH"
                         echo "Checking for Chrome in common locations..."
                         ls -la /usr/bin/google-chrome* || echo "Chrome not found in /usr/bin"
-                        ls -la /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome || echo "Chrome not found in /Applications (macOS)"
+                        ls -la "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" || echo "Chrome not found in /Applications (macOS)"
                     else
                         echo "Chrome browser found"
                     fi
