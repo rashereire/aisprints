@@ -323,22 +323,17 @@ pipeline {
                         archiveArtifacts artifacts: 'test-results/ui-tests/**/*', allowEmptyArchive: true
                         archiveArtifacts artifacts: 'tests/ui/reports/**/*', allowEmptyArchive: true
                         
-                        // Publish HTML report if available (optional - requires HTML Publisher Plugin)
-                        if (fileExists("${UI_TEST_REPORT}/test-results.html")) {
-                            try {
-                                publishHTML([
-                                    reportName: 'UI Test Results',
-                                    reportDir: "${UI_TEST_REPORT}",
-                                    reportFiles: 'test-results.html',
-                                    keepAll: true,
-                                    alwaysLinkToLastBuild: true
-                                ])
-                            } catch (Exception e) {
-                                echo "Warning: HTML Publisher Plugin not available. Skipping HTML report publishing."
-                                echo "Error: ${e.getMessage()}"
-                                // Continue execution - this is not a critical failure
-                            }
-                        }
+                        // Note: HTML report publishing is available if HTML Publisher Plugin is installed
+                        // To enable, uncomment the following block and ensure the plugin is installed:
+                        // if (fileExists("${UI_TEST_REPORT}/test-results.html")) {
+                        //     publishHTML([
+                        //         reportName: 'UI Test Results',
+                        //         reportDir: "${UI_TEST_REPORT}",
+                        //         reportFiles: 'test-results.html',
+                        //         keepAll: true,
+                        //         alwaysLinkToLastBuild: true
+                        //     ])
+                        // }
                     }
                 }
             }
