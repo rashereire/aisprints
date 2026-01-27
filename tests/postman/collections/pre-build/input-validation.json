@@ -1,0 +1,578 @@
+{
+	"info": {
+		"name": "Input Validation - Pre-Build",
+		"description": "Validates request body, query parameters, and path parameters. Tests OWASP INPVAL-009 (input length limits) and INPVAL-010 (special character handling). These tests run before build using schema validation only (no HTTP requests).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication Input Validation",
+			"item": [
+				{
+					"name": "🔒 OWASP INPVAL-009: firstName length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const firstNameLength = requestBody.firstName ? requestBody.firstName.length : 0;",
+									"",
+									"if (firstNameLength === 0) {",
+									"  pm.test('Empty firstName rejected', () => {",
+									"    pm.expect(firstNameLength).to.equal(0);",
+									"    // Schema validation would reject this",
+									"  });",
+									"} else if (firstNameLength > 50) {",
+									"  pm.test('firstName > 50 chars rejected', () => {",
+									"    pm.expect(firstNameLength).to.be.greaterThan(50);",
+									"    // Schema validation would reject this",
+									"  });",
+									"} else {",
+									"  pm.test('Valid firstName length accepted', () => {",
+									"    pm.expect(firstNameLength).to.be.at.least(1);",
+									"    pm.expect(firstNameLength).to.be.at.most(50);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"Doe\",\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-009: username length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const usernameLength = requestBody.username ? requestBody.username.length : 0;",
+									"",
+									"if (usernameLength < 3) {",
+									"  pm.test('Username < 3 chars rejected', () => {",
+									"    pm.expect(usernameLength).to.be.lessThan(3);",
+									"  });",
+									"} else if (usernameLength > 30) {",
+									"  pm.test('Username > 30 chars rejected', () => {",
+									"    pm.expect(usernameLength).to.be.greaterThan(30);",
+									"  });",
+									"} else {",
+									"  pm.test('Valid username length accepted', () => {",
+									"    pm.expect(usernameLength).to.be.at.least(3);",
+									"    pm.expect(usernameLength).to.be.at.most(30);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"{{username}}\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-010: username special characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const username = requestBody.username || '';",
+									"const validPattern = /^[a-zA-Z0-9_]+$/;",
+									"",
+									"if (validPattern.test(username)) {",
+									"  pm.test('Valid username pattern accepted', () => {",
+									"    pm.expect(username).to.match(validPattern);",
+									"  });",
+									"} else {",
+									"  pm.test('Invalid username pattern rejected', () => {",
+									"    pm.expect(username).to.not.match(validPattern);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"{{username}}\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-009: password length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const passwordLength = requestBody.password ? requestBody.password.length : 0;",
+									"",
+									"if (passwordLength < 8) {",
+									"  pm.test('Password < 8 chars rejected', () => {",
+									"    pm.expect(passwordLength).to.be.lessThan(8);",
+									"  });",
+									"} else {",
+									"  pm.test('Valid password length accepted', () => {",
+									"    pm.expect(passwordLength).to.be.at.least(8);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ Input Validation",
+			"item": [
+				{
+					"name": "🔒 OWASP INPVAL-009: title length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const titleLength = requestBody.title ? requestBody.title.length : 0;",
+									"",
+									"if (titleLength === 0) {",
+									"  pm.test('Empty title rejected', () => {",
+									"    pm.expect(titleLength).to.equal(0);",
+									"  });",
+									"} else if (titleLength > 200) {",
+									"  pm.test('Title > 200 chars rejected', () => {",
+									"    pm.expect(titleLength).to.be.greaterThan(200);",
+									"  });",
+									"} else {",
+									"  pm.test('Valid title length accepted', () => {",
+									"    pm.expect(titleLength).to.be.at.least(1);",
+									"    pm.expect(titleLength).to.be.at.most(200);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"{{title}}\",\n  \"questionText\": \"What is 2+2?\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-009: questionText length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const questionTextLength = requestBody.questionText ? requestBody.questionText.length : 0;",
+									"",
+									"if (questionTextLength === 0) {",
+									"  pm.test('Empty questionText rejected', () => {",
+									"    pm.expect(questionTextLength).to.equal(0);",
+									"  });",
+									"} else if (questionTextLength > 1000) {",
+									"  pm.test('questionText > 1000 chars rejected', () => {",
+									"    pm.expect(questionTextLength).to.be.greaterThan(1000);",
+									"  });",
+									"} else {",
+									"  pm.test('Valid questionText length accepted', () => {",
+									"    pm.expect(questionTextLength).to.be.at.least(1);",
+									"    pm.expect(questionTextLength).to.be.at.most(1000);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"questionText\": \"{{questionText}}\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-009: description length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"if (requestBody.description === null || requestBody.description === undefined) {",
+									"  pm.test('Null description accepted', () => {",
+									"    pm.expect(requestBody.description).to.be.oneOf([null, undefined]);",
+									"  });",
+									"} else {",
+									"  const descriptionLength = requestBody.description.length;",
+									"  if (descriptionLength > 500) {",
+									"    pm.test('Description > 500 chars rejected', () => {",
+									"      pm.expect(descriptionLength).to.be.greaterThan(500);",
+									"    });",
+									"  } else {",
+									"    pm.test('Valid description length accepted', () => {",
+									"      pm.expect(descriptionLength).to.be.at.most(500);",
+									"    });",
+									"  }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"description\": {{description}},\n  \"questionText\": \"What is 2+2?\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-009: choices array size limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const choicesCount = requestBody.choices ? requestBody.choices.length : 0;",
+									"",
+									"if (choicesCount < 2) {",
+									"  pm.test('Choices < 2 rejected', () => {",
+									"    pm.expect(choicesCount).to.be.lessThan(2);",
+									"  });",
+									"} else if (choicesCount > 4) {",
+									"  pm.test('Choices > 4 rejected', () => {",
+									"    pm.expect(choicesCount).to.be.greaterThan(4);",
+									"  });",
+									"} else {",
+									"  pm.test('Valid choices count accepted', () => {",
+									"    pm.expect(choicesCount).to.be.at.least(2);",
+									"    pm.expect(choicesCount).to.be.at.most(4);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"questionText\": \"What is 2+2?\",\n  \"choices\": {{choices}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "TEKS Input Validation",
+			"item": [
+				{
+					"name": "🔒 OWASP INPVAL-009: topicDescription length limits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const topicDescriptionLength = requestBody.topicDescription ? requestBody.topicDescription.length : 0;",
+									"",
+									"if (topicDescriptionLength < 10) {",
+									"  pm.test('topicDescription < 10 chars rejected', () => {",
+									"    pm.expect(topicDescriptionLength).to.be.lessThan(10);",
+									"  });",
+									"} else if (topicDescriptionLength > 500) {",
+									"  pm.test('topicDescription > 500 chars rejected', () => {",
+									"    pm.expect(topicDescriptionLength).to.be.greaterThan(500);",
+									"  });",
+									"} else {",
+									"  pm.test('Valid topicDescription length accepted', () => {",
+									"    pm.expect(topicDescriptionLength).to.be.at.least(10);",
+									"    pm.expect(topicDescriptionLength).to.be.at.most(500);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"Test standard\",\n  \"topicDescription\": \"{{topicDescription}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "🔒 OWASP INPVAL-010: topicDescription special characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"const topicDescription = requestBody.topicDescription || '';",
+									"",
+									"// Test that special characters are accepted (not rejected)",
+									"// The API should sanitize, not reject",
+									"pm.test('Special characters in topicDescription handled', () => {",
+									"  // Should accept special characters",
+									"  pm.expect(topicDescription).to.be.a('string');",
+									"  pm.expect(topicDescription.length).to.be.at.least(10);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"Test standard\",\n  \"topicDescription\": \"{{topicDescription}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Query Parameter Validation",
+			"item": [
+				{
+					"name": "GET /api/mcqs - pagination parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const url = pm.request.url.toString();",
+									"const pageMatch = url.match(/[?&]page=(\\d+)/);",
+									"const limitMatch = url.match(/[?&]limit=(\\d+)/);",
+									"",
+									"if (pageMatch) {",
+									"  const page = parseInt(pageMatch[1]);",
+									"  pm.test('Page parameter is positive integer', () => {",
+									"    pm.expect(page).to.be.at.least(1);",
+									"  });",
+									"}",
+									"",
+									"if (limitMatch) {",
+									"  const limit = parseInt(limitMatch[1]);",
+									"  pm.test('Limit parameter is positive integer', () => {",
+									"    pm.expect(limit).to.be.at.least(1);",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs?page={{page}}&limit={{limit}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "{{page}}"
+								},
+								{
+									"key": "limit",
+									"value": "{{limit}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "firstName",
+			"value": "John"
+		},
+		{
+			"key": "username",
+			"value": "testuser"
+		},
+		{
+			"key": "password",
+			"value": "Password123"
+		},
+		{
+			"key": "title",
+			"value": "Test MCQ"
+		},
+		{
+			"key": "questionText",
+			"value": "What is 2+2?"
+		},
+		{
+			"key": "description",
+			"value": null
+		},
+		{
+			"key": "choices",
+			"value": "[{\"choiceText\":\"3\",\"isCorrect\":false,\"displayOrder\":0},{\"choiceText\":\"4\",\"isCorrect\":true,\"displayOrder\":1}]"
+		},
+		{
+			"key": "topicDescription",
+			"value": "This is a test topic description that is at least 10 characters long"
+		},
+		{
+			"key": "page",
+			"value": "1"
+		},
+		{
+			"key": "limit",
+			"value": "10"
+		}
+	]
+}

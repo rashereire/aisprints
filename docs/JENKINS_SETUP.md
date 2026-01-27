@@ -456,12 +456,16 @@ stage('Unit Tests') {
 
 ## UI Test Pipeline (Separate Job)
 
-For Selenium UI tests, create a separate Jenkins job:
+For Selenium UI tests (TypeScript + Jest), create a separate Jenkins job:
 
 1. **Create New Job**: `quizmaker-ui-tests`
 2. **Configure**: Similar to main pipeline but focused on UI tests
+   - Uses Node.js (already configured)
+   - Runs `npm run test:ui` in `tests/ui/` directory
+   - Publishes Jest HTML reports
 3. **Trigger**: Post-deployment or scheduled
-4. **See**: `docs/TEST_PLAN.md` for UI test setup details
+4. **See**: `docs/UI_TEST_PLAN.md` for UI test setup details
+5. **Prerequisites**: Chrome browser installed on Jenkins agent
 
 ---
 

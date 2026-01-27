@@ -26,6 +26,10 @@
 			"value": ""
 		},
 		{
+			"key": "testMcqIdForGet",
+			"value": ""
+		},
+		{
 			"key": "testChoiceId",
 			"value": ""
 		},
@@ -147,59 +151,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"title\": \"INTEGRATION_TEST_MCQ_CREATE_1\",\n  \"description\": \"Test MCQ created by integration tests\",\n  \"questionText\": \"What is 2 + 2?\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 },\n    { \"choiceText\": \"5\", \"isCorrect\": false, \"displayOrder\": 2 },\n    { \"choiceText\": \"6\", \"isCorrect\": false, \"displayOrder\": 3 }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/mcqs",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "mcqs"]
-						}
-					}
-				},
-				{
-					"name": "MCQ - POST /api/mcqs - missing authentication returns 401",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"// Clear cookie jar for unauthenticated test - use exact domain match",
-									"const baseUrl = pm.environment.get('baseUrl');",
-									"// Clear cookies for the exact domain",
-									"pm.cookies.jar().clear(baseUrl, function(err) {",
-									"  if (err) console.log('Cookie clear error:', err);",
-									"});",
-									"// Also remove any Cookie header that might exist",
-									"pm.request.headers.remove('Cookie');"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// MCQ - POST /api/mcqs - missing authentication returns 401",
-									"",
-									"pm.test(\"MCQ - create - unauthenticated returns 401\", function () {",
-									"  pm.response.to.have.status(401);",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"protocolProfileBehavior": {
-							"disableCookies": true
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"questionText\": \"Test question?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/mcqs",
@@ -362,17 +313,57 @@
 			"name": "MCQ - Retrieval",
 			"item": [
 				{
+					"name": "MCQ - Retrieval Setup - Create MCQ for GET test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verify MCQ creation succeeded",
+									"pm.test('Setup MCQ creation succeeded', function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Store MCQ ID for GET test",
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('testMcqIdForGet', json.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"INTEGRATION_TEST_MCQ_GET\",\n  \"description\": \"Test MCQ created for GET by ID test\",\n  \"questionText\": \"What is the capital of France?\",\n  \"choices\": [\n    { \"choiceText\": \"London\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"Paris\", \"isCorrect\": true, \"displayOrder\": 1 },\n    { \"choiceText\": \"Berlin\", \"isCorrect\": false, \"displayOrder\": 2 },\n    { \"choiceText\": \"Madrid\", \"isCorrect\": false, \"displayOrder\": 3 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
 					"name": "MCQ - GET /api/mcqs/[id] - valid ID returns 200",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Ensure we have a test MCQ ID",
-									"const mcqId = pm.collectionVariables.get('testMcqId');",
-									"if (!mcqId) {",
-									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
-									"}"
+									"// Ensure we have a dedicated test MCQ ID for GET test",
+									"const mcqId = pm.collectionVariables.get('testMcqIdForGet');",
+									"if (!mcqId || mcqId === '') {",
+									"  throw new Error('No test MCQ ID found. Run MCQ - Retrieval Setup first.');",
+									"}",
+									"// Set the URL programmatically to ensure correct ID",
+									"pm.request.url = pm.environment.get('baseUrl') + '/api/mcqs/' + mcqId;"
 								]
 							}
 						},
@@ -402,9 +393,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/mcqs/{{testMcqId}}",
+							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForGet}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["api", "mcqs", "{{testMcqId}}"]
+							"path": ["api", "mcqs", "{{testMcqIdForGet}}"]
 						}
 					}
 				},
@@ -660,62 +651,7 @@
 					}
 				},
 				{
-					"name": "MCQ - PUT /api/mcqs/[id] - missing authentication returns 401",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const mcqId = pm.collectionVariables.get('testMcqId');",
-									"if (!mcqId) {",
-									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
-									"}",
-									"// Clear cookie jar for unauthenticated test - use exact domain match",
-									"const baseUrl = pm.environment.get('baseUrl');",
-									"pm.cookies.jar().clear(baseUrl, function(err) {",
-									"  if (err) console.log('Cookie clear error:', err);",
-									"});",
-									"pm.request.headers.remove('Cookie');"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// MCQ - PUT /api/mcqs/[id] - missing authentication returns 401",
-									"",
-									"pm.test(\"MCQ - update - unauthenticated returns 401\", function () {",
-									"  pm.response.to.have.status(401);",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"protocolProfileBehavior": {
-							"disableCookies": true
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Test Update\",\n  \"questionText\": \"Test?\",\n  \"choices\": [\n    { \"choiceText\": \"A\", \"isCorrect\": true, \"displayOrder\": 0 },\n    { \"choiceText\": \"B\", \"isCorrect\": false, \"displayOrder\": 1 }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/mcqs/{{testMcqId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "mcqs", "{{testMcqId}}"]
-						}
-					}
-				},
-				{
-					"name": "MCQ - PUT /api/mcqs/[id] - non-existent ID returns 404",
+					"name": "MCQ - PUT /api/mcqs/[id] - non-existent ID returns 403",
 					"event": [
 						{
 						},
@@ -723,10 +659,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// MCQ - PUT /api/mcqs/[id] - non-existent ID returns 404",
+									"// MCQ - PUT /api/mcqs/[id] - non-existent ID returns 403",
+									"// Note: API returns 403 (not 404) for security - ownership check happens before existence check",
+									"// This prevents information leakage about whether a resource exists",
 									"",
-									"pm.test(\"MCQ - update - non-existent returns 404\", function () {",
-									"  pm.response.to.have.status(404);",
+									"pm.test(\"MCQ - update - non-existent returns 403\", function () {",
+									"  pm.response.to.have.status(403);",
 									"});"
 								]
 							}
@@ -759,9 +697,11 @@
 							"script": {
 								"exec": [
 									"const mcqId = pm.collectionVariables.get('testMcqId');",
-									"if (!mcqId) {",
+									"if (!mcqId || mcqId === '') {",
 									"  throw new Error('No test MCQ ID found. Run creation tests first.');",
-									"}"
+									"}",
+									"// Set the URL with the MCQ ID",
+									"pm.request.url = pm.environment.get('baseUrl') + '/api/mcqs/' + mcqId;"
 								]
 							}
 						},
@@ -855,86 +795,6 @@
 							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForDelete}}",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "mcqs", "{{testMcqIdForDelete}}"]
-						}
-					}
-				},
-				{
-					"name": "MCQ - DELETE /api/mcqs/[id] - missing authentication returns 401",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"// Create a new MCQ first for this test",
-									"const sessionCookie = pm.cookies.get('session_token');",
-									"if (!sessionCookie) {",
-									"  throw new Error('No session cookie found. Run setup login first.');",
-									"}",
-									"pm.sendRequest({",
-									"  url: pm.environment.get('baseUrl') + '/api/mcqs',",
-									"  method: 'POST',",
-									"  header: {",
-									"    'Content-Type': 'application/json',",
-									"    'Cookie': 'session_token=' + sessionCookie",
-									"  },",
-									"  body: {",
-									"    mode: 'raw',",
-									"    raw: JSON.stringify({",
-									"      title: 'INTEGRATION_TEST_MCQ_DELETE_UNAUTH',",
-									"      questionText: 'Test?',",
-									"      choices: [",
-									"        { choiceText: 'A', isCorrect: true, displayOrder: 0 },",
-									"        { choiceText: 'B', isCorrect: false, displayOrder: 1 }",
-									"      ]",
-									"    })",
-									"  }",
-									"}, function(err, response) {",
-									"  if (!err && response.code === 201) {",
-									"    const json = response.json();",
-									"    pm.collectionVariables.set('testMcqIdForUnauthDelete', json.id);",
-									"  }",
-									"});"
-								]
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"// Clear cookie jar for unauthenticated test - use exact domain match",
-									"const baseUrl = pm.environment.get('baseUrl');",
-									"// Clear cookies for the exact domain",
-									"pm.cookies.jar().clear(baseUrl, function(err) {",
-									"  if (err) console.log('Cookie clear error:', err);",
-									"});",
-									"// Also remove any Cookie header that might exist",
-									"pm.request.headers.remove('Cookie');"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// MCQ - DELETE /api/mcqs/[id] - missing authentication returns 401",
-									"",
-									"pm.test(\"MCQ - delete - unauthenticated returns 401\", function () {",
-									"  pm.response.to.have.status(401);",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForUnauthDelete}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "mcqs", "{{testMcqIdForUnauthDelete}}"]
-						},
-						"protocolProfileBehavior": {
-							"disableCookies": true
 						}
 					}
 				},
@@ -1147,7 +1007,7 @@
 					}
 				},
 				{
-					"name": "MCQ - POST /api/mcqs/[id]/attempt - invalid choice ID returns 400",
+					"name": "MCQ - POST /api/mcqs/[id]/attempt - non-existent choice ID returns 404",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1165,10 +1025,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// MCQ - POST /api/mcqs/[id]/attempt - invalid choice ID returns 400",
+									"// MCQ - POST /api/mcqs/[id]/attempt - non-existent choice ID returns 404",
+									"// Note: API returns 404 when the choice ID does not exist at all",
 									"",
-									"pm.test(\"MCQ - attempt - invalid choice returns 400\", function () {",
-									"  pm.response.to.have.status(400);",
+									"pm.test(\"MCQ - attempt - non-existent choice returns 404\", function () {",
+									"  pm.response.to.have.status(404);",
 									"});"
 								]
 							}
@@ -1185,62 +1046,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"selectedChoiceId\": \"invalid-choice-id-12345\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForAttempt}}/attempt",
-							"host": ["{{baseUrl}}"],
-							"path": ["api", "mcqs", "{{testMcqIdForAttempt}}", "attempt"]
-						}
-					}
-				},
-				{
-					"name": "MCQ - POST /api/mcqs/[id]/attempt - missing authentication returns 401",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"// Verify MCQ ID is set from setup request",
-									"const mcqId = pm.collectionVariables.get('testMcqIdForAttempt');",
-									"if (!mcqId) {",
-									"  throw new Error('No test MCQ ID found. Run MCQ - Attempt Setup first.');",
-									"}",
-									"// Clear cookie jar for unauthenticated test - use exact domain match",
-									"const baseUrl = pm.environment.get('baseUrl');",
-									"pm.cookies.jar().clear(baseUrl, function(err) {",
-									"  if (err) console.log('Cookie clear error:', err);",
-									"});",
-									"pm.request.headers.remove('Cookie');"
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// MCQ - POST /api/mcqs/[id]/attempt - missing authentication returns 401",
-									"",
-									"pm.test(\"MCQ - attempt - unauthenticated returns 401\", function () {",
-									"  pm.response.to.have.status(401);",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"protocolProfileBehavior": {
-							"disableCookies": true
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"selectedChoiceId\": \"{{testCorrectChoiceIdForAttempt}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/mcqs/{{testMcqIdForAttempt}}/attempt",

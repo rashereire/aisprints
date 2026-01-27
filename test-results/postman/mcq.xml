@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Post-Build MCQ Integration Tests" tests="24" time="0.344">
+  <testsuite name="MCQ - Setup / MCQ - Setup - Login to establish session" id="7447a40d-9de5-4c34-bc25-7a0cb8f5462b" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="0" errors="0" time="0.190">
+    <testcase name="Setup login succeeded" time="0.190" classname="McqSetupMcqSetupLoginToEstablishSession"/>
+  </testsuite>
+  <testsuite name="MCQ - Creation / MCQ - POST /api/mcqs - valid creation returns 201" id="3ab851af-a138-4fd9-a011-33eb3c47233f" timestamp="2026-01-21T18:01:29.996Z" tests="3" failures="0" errors="0" time="0.023">
+    <testcase name="MCQ - create - status is 201" time="0.023" classname="McqCreationMcqPostApiMcqsValidCreationReturns201"/>
+    <testcase name="MCQ - create - response includes MCQ fields" time="0.023" classname="McqCreationMcqPostApiMcqsValidCreationReturns201"/>
+    <testcase name="MCQ - create - exactly one choice is correct" time="0.023" classname="McqCreationMcqPostApiMcqsValidCreationReturns201"/>
+  </testsuite>
+  <testsuite name="MCQ - Creation / MCQ - POST /api/mcqs - missing authentication returns 401" id="0096d639-0c9d-4a6d-a8fc-f51db459ece1" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="0" errors="0" time="0.004">
+    <testcase name="MCQ - create - unauthenticated returns 401" time="0.004" classname="McqCreationMcqPostApiMcqsMissingAuthenticationReturns401"/>
+  </testsuite>
+  <testsuite name="MCQ - Creation / MCQ - POST /api/mcqs - no correct choice returns 400" id="caa086dc-6700-4b34-9c7d-80d60bbb1442" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.006">
+    <testcase name="MCQ - create - no correct choice returns 400" time="0.006" classname="McqCreationMcqPostApiMcqsNoCorrectChoiceReturns400">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Creation / MCQ - POST /api/mcqs - no correct choice returns 400.]]>
+        <![CDATA[Test description: MCQ - create - no correct choice returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:4).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Creation / MCQ - POST /api/mcqs - too few choices returns 400" id="0ded4e8d-6935-4a7f-a980-d2ab5c6fdd31" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.004">
+    <testcase name="MCQ - create - too few choices returns 400" time="0.004" classname="McqCreationMcqPostApiMcqsTooFewChoicesReturns400">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Creation / MCQ - POST /api/mcqs - too few choices returns 400.]]>
+        <![CDATA[Test description: MCQ - create - too few choices returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:5).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Creation / MCQ - POST /api/mcqs - missing required fields returns 400" id="ea2e95f6-774b-4cec-9207-50cd4636602b" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.005">
+    <testcase name="MCQ - create - missing title returns 400" time="0.005" classname="McqCreationMcqPostApiMcqsMissingRequiredFieldsReturns400">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Creation / MCQ - POST /api/mcqs - missing required fields returns 400.]]>
+        <![CDATA[Test description: MCQ - create - missing title returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:6).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Creation / 🔒 OWASP INPVAL-009: MCQ - POST /api/mcqs - title length limit enforced" id="5073a3fd-b05c-4f3d-8b3c-caf1732c95ce" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.004">
+    <testcase name="🔒 OWASP INPVAL-009: title > 200 chars returns 400" time="0.004" classname="McqCreationOwaspInpval009McqPostApiMcqsTitleLengthLimitEnforced">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Creation / 🔒 OWASP INPVAL-009: MCQ - POST /api/mcqs - title length limit enforced.]]>
+        <![CDATA[Test description: 🔒 OWASP INPVAL-009: title > 200 chars returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:7).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Retrieval / MCQ - GET /api/mcqs/[id] - valid ID returns 200" id="8071d38b-492a-4d31-b829-5cd87552c80e" timestamp="2026-01-21T18:01:29.996Z" tests="2" failures="2" errors="0" time="0.003">
+    <testcase name="MCQ - get by ID - status is 200" time="0.003" classname="McqRetrievalMcqGetApiMcqsIdValidIdReturns200">
+      <failure type="AssertionFailure" message="expected response to have status code 200 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs/[id] - valid ID returns 200.]]>
+        <![CDATA[Test description: MCQ - get by ID - status is 200.]]>
+        <![CDATA[Error message: expected response to have status code 200 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 200 but got 401
+   at Object.eval sandbox-script.js:1:8).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - get by ID - response includes MCQ and choices" time="0.003" classname="McqRetrievalMcqGetApiMcqsIdValidIdReturns200">
+      <failure type="AssertionFailure" message="expected { error: 'Authentication required' } to have property 'id'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs/[id] - valid ID returns 200.]]>
+        <![CDATA[Test description: MCQ - get by ID - response includes MCQ and choices.]]>
+        <![CDATA[Error message: expected { error: 'Authentication required' } to have property 'id'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Authentication required' } to have property 'id'
+   at Object.eval sandbox-script.js:2:8).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Retrieval / MCQ - GET /api/mcqs/[id] - non-existent ID returns 404" id="00770942-fc11-4a0c-a35d-2424883bcba5" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.004">
+    <testcase name="MCQ - get by ID - non-existent returns 404" time="0.004" classname="McqRetrievalMcqGetApiMcqsIdNonExistentIdReturns404">
+      <failure type="AssertionFailure" message="expected response to have status code 404 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs/[id] - non-existent ID returns 404.]]>
+        <![CDATA[Test description: MCQ - get by ID - non-existent returns 404.]]>
+        <![CDATA[Error message: expected response to have status code 404 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 404 but got 401
+   at Object.eval sandbox-script.js:1:9).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Retrieval / MCQ - GET /api/mcqs - list with pagination returns 200" id="a6a4fae1-bcbf-412f-8762-73fc8e25b383" timestamp="2026-01-21T18:01:29.996Z" tests="3" failures="3" errors="0" time="0.004">
+    <testcase name="MCQ - list - status is 200" time="0.004" classname="McqRetrievalMcqGetApiMcqsListWithPaginationReturns200">
+      <failure type="AssertionFailure" message="expected response to have status code 200 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - list with pagination returns 200.]]>
+        <![CDATA[Test description: MCQ - list - status is 200.]]>
+        <![CDATA[Error message: expected response to have status code 200 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 200 but got 401
+   at Object.eval sandbox-script.js:1:10).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - list - response has pagination structure" time="0.004" classname="McqRetrievalMcqGetApiMcqsListWithPaginationReturns200">
+      <failure type="AssertionFailure" message="expected { error: 'Authentication required' } to have property 'data'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - list with pagination returns 200.]]>
+        <![CDATA[Test description: MCQ - list - response has pagination structure.]]>
+        <![CDATA[Error message: expected { error: 'Authentication required' } to have property 'data'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Authentication required' } to have property 'data'
+   at Object.eval sandbox-script.js:2:10).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - list - pagination metadata correct" time="0.004" classname="McqRetrievalMcqGetApiMcqsListWithPaginationReturns200">
+      <failure type="AssertionFailure" message="Target cannot be null or undefined.">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - list with pagination returns 200.]]>
+        <![CDATA[Test description: MCQ - list - pagination metadata correct.]]>
+        <![CDATA[Error message: Target cannot be null or undefined..]]>
+        <![CDATA[Stacktrace: AssertionError: Target cannot be null or undefined.
+   at Object.eval sandbox-script.js:3:10).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Retrieval / MCQ - GET /api/mcqs - pagination page 2 returns different items" id="485a4552-f821-42b7-b8c6-1724b824d99e" timestamp="2026-01-21T18:01:29.996Z" tests="2" failures="2" errors="0" time="0.003">
+    <testcase name="MCQ - list - page 2 status is 200" time="0.003" classname="McqRetrievalMcqGetApiMcqsPaginationPage2ReturnsDifferentItems">
+      <failure type="AssertionFailure" message="expected response to have status code 200 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - pagination page 2 returns different items.]]>
+        <![CDATA[Test description: MCQ - list - page 2 status is 200.]]>
+        <![CDATA[Error message: expected response to have status code 200 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 200 but got 401
+   at Object.eval sandbox-script.js:1:11).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - list - page 2 has correct page number" time="0.003" classname="McqRetrievalMcqGetApiMcqsPaginationPage2ReturnsDifferentItems">
+      <failure type="AssertionFailure" message="Cannot read properties of undefined (reading 'page')">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - pagination page 2 returns different items.]]>
+        <![CDATA[Test description: MCQ - list - page 2 has correct page number.]]>
+        <![CDATA[Error message: Cannot read properties of undefined (reading 'page').]]>
+        <![CDATA[Stacktrace: TypeError: Cannot read properties of undefined (reading 'page')
+   at Object.eval sandbox-script.js:2:11).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Retrieval / MCQ - GET /api/mcqs - invalid page parameter returns 400" id="a5e2e691-e24b-47db-9ebc-2f2f9948e2b6" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.007">
+    <testcase name="MCQ - list - invalid page returns 400" time="0.007" classname="McqRetrievalMcqGetApiMcqsInvalidPageParameterReturns400">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - invalid page parameter returns 400.]]>
+        <![CDATA[Test description: MCQ - list - invalid page returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:12).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Retrieval / MCQ - GET /api/mcqs - search parameter filters results" id="ac29618b-3f4f-458a-9456-1b1792a67067" timestamp="2026-01-21T18:01:29.996Z" tests="2" failures="2" errors="0" time="0.003">
+    <testcase name="MCQ - list - search returns 200" time="0.003" classname="McqRetrievalMcqGetApiMcqsSearchParameterFiltersResults">
+      <failure type="AssertionFailure" message="expected response to have status code 200 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - search parameter filters results.]]>
+        <![CDATA[Test description: MCQ - list - search returns 200.]]>
+        <![CDATA[Error message: expected response to have status code 200 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 200 but got 401
+   at Object.eval sandbox-script.js:1:13).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - list - search response has correct structure" time="0.003" classname="McqRetrievalMcqGetApiMcqsSearchParameterFiltersResults">
+      <failure type="AssertionFailure" message="expected { error: 'Authentication required' } to have property 'data'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Retrieval / MCQ - GET /api/mcqs - search parameter filters results.]]>
+        <![CDATA[Test description: MCQ - list - search response has correct structure.]]>
+        <![CDATA[Error message: expected { error: 'Authentication required' } to have property 'data'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Authentication required' } to have property 'data'
+   at Object.eval sandbox-script.js:2:13).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Update / MCQ - PUT /api/mcqs/[id] - owner update returns 200" id="d3e21bfe-237f-495e-b984-ef45d473ae7c" timestamp="2026-01-21T18:01:29.996Z" tests="2" failures="2" errors="0" time="0.003">
+    <testcase name="MCQ - update - owner returns 200" time="0.003" classname="McqUpdateMcqPutApiMcqsIdOwnerUpdateReturns200">
+      <failure type="AssertionFailure" message="expected response to have status code 200 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Update / MCQ - PUT /api/mcqs/[id] - owner update returns 200.]]>
+        <![CDATA[Test description: MCQ - update - owner returns 200.]]>
+        <![CDATA[Error message: expected response to have status code 200 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 200 but got 401
+   at Object.eval sandbox-script.js:1:14).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - update - response includes updated fields" time="0.003" classname="McqUpdateMcqPutApiMcqsIdOwnerUpdateReturns200">
+      <failure type="AssertionFailure" message="expected { error: 'Authentication required' } to have property 'id'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Update / MCQ - PUT /api/mcqs/[id] - owner update returns 200.]]>
+        <![CDATA[Test description: MCQ - update - response includes updated fields.]]>
+        <![CDATA[Error message: expected { error: 'Authentication required' } to have property 'id'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Authentication required' } to have property 'id'
+   at Object.eval sandbox-script.js:2:14).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Update / MCQ - PUT /api/mcqs/[id] - missing authentication returns 401" id="c4900c91-20d6-4e6d-ad5e-c301c4c50e39" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="0" errors="0" time="0.003">
+    <testcase name="MCQ - update - unauthenticated returns 401" time="0.003" classname="McqUpdateMcqPutApiMcqsIdMissingAuthenticationReturns401"/>
+  </testsuite>
+  <testsuite name="MCQ - Update / MCQ - PUT /api/mcqs/[id] - non-existent ID returns 404" id="37c48f86-9c1f-4b0b-81e3-6e7911479abc" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.003">
+    <testcase name="MCQ - update - non-existent returns 404" time="0.003" classname="McqUpdateMcqPutApiMcqsIdNonExistentIdReturns404">
+      <failure type="AssertionFailure" message="expected response to have status code 404 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Update / MCQ - PUT /api/mcqs/[id] - non-existent ID returns 404.]]>
+        <![CDATA[Test description: MCQ - update - non-existent returns 404.]]>
+        <![CDATA[Error message: expected response to have status code 404 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 404 but got 401
+   at Object.eval sandbox-script.js:1:16).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Update / MCQ - PUT /api/mcqs/[id] - invalid update data returns 400" id="7d753756-cbf6-484b-ba37-a02b14377197" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.007">
+    <testcase name="MCQ - update - no correct choice returns 400" time="0.007" classname="McqUpdateMcqPutApiMcqsIdInvalidUpdateDataReturns400">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Update / MCQ - PUT /api/mcqs/[id] - invalid update data returns 400.]]>
+        <![CDATA[Test description: MCQ - update - no correct choice returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:17).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Deletion / MCQ - DELETE /api/mcqs/[id] - owner deletion returns 200" id="4c0311d0-33b8-4e51-b4d0-2e406a7d8a24" timestamp="2026-01-21T18:01:29.996Z" tests="3" failures="2" errors="0" time="0.011">
+    <testcase name="MCQ - delete - owner returns 200" time="0.011" classname="McqDeletionMcqDeleteApiMcqsIdOwnerDeletionReturns200">
+      <failure type="AssertionFailure" message="expected response to have status code 200 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Deletion / MCQ - DELETE /api/mcqs/[id] - owner deletion returns 200.]]>
+        <![CDATA[Test description: MCQ - delete - owner returns 200.]]>
+        <![CDATA[Error message: expected response to have status code 200 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 200 but got 401
+   at Object.eval sandbox-script.js:1:18).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - delete - response confirms deletion" time="0.011" classname="McqDeletionMcqDeleteApiMcqsIdOwnerDeletionReturns200">
+      <failure type="AssertionFailure" message="expected { error: 'Authentication required' } to have property 'message'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Deletion / MCQ - DELETE /api/mcqs/[id] - owner deletion returns 200.]]>
+        <![CDATA[Test description: MCQ - delete - response confirms deletion.]]>
+        <![CDATA[Error message: expected { error: 'Authentication required' } to have property 'message'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Authentication required' } to have property 'message'
+   at Object.eval sandbox-script.js:2:18).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - delete - MCQ no longer accessible" time="0.011" classname="McqDeletionMcqDeleteApiMcqsIdOwnerDeletionReturns200"/>
+  </testsuite>
+  <testsuite name="MCQ - Deletion / MCQ - DELETE /api/mcqs/[id] - missing authentication returns 401" id="2150b3c6-7470-4a90-a2ed-150209b11efd" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="0" errors="1" time="0.005">
+    <system-err><![CDATA[Iteration: 0
+
+---
+prerequestScriptError: No session cookie found. Run setup login first.
+---
+]]></system-err>
+    <testcase name="MCQ - delete - unauthenticated returns 401" time="0.005" classname="McqDeletionMcqDeleteApiMcqsIdMissingAuthenticationReturns401"/>
+  </testsuite>
+  <testsuite name="MCQ - Deletion / MCQ - DELETE /api/mcqs/[id] - non-existent ID returns 404" id="981aeb70-81c3-4b63-bbe4-539aee5db312" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="0" time="0.006">
+    <testcase name="MCQ - delete - non-existent returns 404" time="0.006" classname="McqDeletionMcqDeleteApiMcqsIdNonExistentIdReturns404">
+      <failure type="AssertionFailure" message="expected response to have status code 404 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Deletion / MCQ - DELETE /api/mcqs/[id] - non-existent ID returns 404.]]>
+        <![CDATA[Test description: MCQ - delete - non-existent returns 404.]]>
+        <![CDATA[Error message: expected response to have status code 404 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 404 but got 401
+   at Object.eval sandbox-script.js:1:20).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - correct answer returns 201" id="9437d7ed-e7ee-4df3-bb2c-63c0baa46520" timestamp="2026-01-21T18:01:29.996Z" tests="3" failures="3" errors="1" time="0.012">
+    <system-err><![CDATA[Iteration: 0
+
+---
+prerequestScriptError: No session cookie found. Run setup login first.
+---
+]]></system-err>
+    <testcase name="MCQ - attempt - correct answer returns 201" time="0.012" classname="McqAttemptMcqPostApiMcqsIdAttemptCorrectAnswerReturns201">
+      <failure type="AssertionFailure" message="expected response to have status code 201 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - correct answer returns 201.]]>
+        <![CDATA[Test description: MCQ - attempt - correct answer returns 201.]]>
+        <![CDATA[Error message: expected response to have status code 201 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 201 but got 401
+   at Object.eval sandbox-script.js:1:21).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - attempt - response includes attempt fields" time="0.012" classname="McqAttemptMcqPostApiMcqsIdAttemptCorrectAnswerReturns201">
+      <failure type="AssertionFailure" message="expected { error: 'Authentication required' } to have property 'id'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - correct answer returns 201.]]>
+        <![CDATA[Test description: MCQ - attempt - response includes attempt fields.]]>
+        <![CDATA[Error message: expected { error: 'Authentication required' } to have property 'id'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Authentication required' } to have property 'id'
+   at Object.eval sandbox-script.js:2:21).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - attempt - correct answer marked as correct" time="0.012" classname="McqAttemptMcqPostApiMcqsIdAttemptCorrectAnswerReturns201">
+      <failure type="AssertionFailure" message="expected undefined to equal true">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - correct answer returns 201.]]>
+        <![CDATA[Test description: MCQ - attempt - correct answer marked as correct.]]>
+        <![CDATA[Error message: expected undefined to equal true.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to equal true
+   at Object.eval sandbox-script.js:3:21).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - incorrect answer returns 201" id="48dc24d3-1d25-4d57-960d-705c983e7392" timestamp="2026-01-21T18:01:29.996Z" tests="2" failures="2" errors="1" time="0.011">
+    <system-err><![CDATA[Iteration: 0
+
+---
+prerequestScriptError: No test MCQ ID found. Run correct answer attempt test first.
+---
+]]></system-err>
+    <testcase name="MCQ - attempt - incorrect answer returns 201" time="0.011" classname="McqAttemptMcqPostApiMcqsIdAttemptIncorrectAnswerReturns201">
+      <failure type="AssertionFailure" message="expected response to have status code 201 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - incorrect answer returns 201.]]>
+        <![CDATA[Test description: MCQ - attempt - incorrect answer returns 201.]]>
+        <![CDATA[Error message: expected response to have status code 201 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 201 but got 401
+   at Object.eval sandbox-script.js:1:22).]]>
+      </failure>
+    </testcase>
+    <testcase name="MCQ - attempt - incorrect answer marked as incorrect" time="0.011" classname="McqAttemptMcqPostApiMcqsIdAttemptIncorrectAnswerReturns201">
+      <failure type="AssertionFailure" message="expected undefined to equal false">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - incorrect answer returns 201.]]>
+        <![CDATA[Test description: MCQ - attempt - incorrect answer marked as incorrect.]]>
+        <![CDATA[Error message: expected undefined to equal false.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to equal false
+   at Object.eval sandbox-script.js:2:22).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - invalid choice ID returns 400" id="b80519f0-48c2-459b-ac02-cf60ea114e2f" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="1" errors="1" time="0.010">
+    <system-err><![CDATA[Iteration: 0
+
+---
+prerequestScriptError: No test MCQ ID found. Run attempt tests first.
+---
+]]></system-err>
+    <testcase name="MCQ - attempt - invalid choice returns 400" time="0.010" classname="McqAttemptMcqPostApiMcqsIdAttemptInvalidChoiceIdReturns400">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 401">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6ec52a18-101f-4e88-ac11-e1ad478f7a6b.]]>
+        <![CDATA[Collection name: Post-Build MCQ Integration Tests.]]>
+        <![CDATA[Request name: MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - invalid choice ID returns 400.]]>
+        <![CDATA[Test description: MCQ - attempt - invalid choice returns 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 401.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 401
+   at Object.eval sandbox-script.js:1:23).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="MCQ - Attempt / MCQ - POST /api/mcqs/[id]/attempt - missing authentication returns 401" id="f63517cc-05e9-441b-9955-2e6f17d4967e" timestamp="2026-01-21T18:01:29.996Z" tests="1" failures="0" errors="1" time="0.013">
+    <system-err><![CDATA[Iteration: 0
+
+---
+prerequestScriptError: No test MCQ ID found. Run attempt tests first.
+---
+]]></system-err>
+    <testcase name="MCQ - attempt - unauthenticated returns 401" time="0.013" classname="McqAttemptMcqPostApiMcqsIdAttemptMissingAuthenticationReturns401"/>
+  </testsuite>
+</testsuites>

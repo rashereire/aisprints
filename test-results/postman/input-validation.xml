@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Input Validation - Pre-Build" tests="11" time="0.000">
+  <testsuite name="Authentication Input Validation / 🔒 OWASP INPVAL-009: firstName length limits" id="e9fb04e9-76df-43b6-8aed-e2b8f6b0a380" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid firstName length accepted" time="0.000" classname="AuthenticationInputValidationOwaspInpval009FirstNameLengthLimits"/>
+  </testsuite>
+  <testsuite name="Authentication Input Validation / 🔒 OWASP INPVAL-009: username length limits" id="191c86b2-a662-44c2-8457-694db3fb1d83" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid username length accepted" time="0.000" classname="AuthenticationInputValidationOwaspInpval009UsernameLengthLimits"/>
+  </testsuite>
+  <testsuite name="Authentication Input Validation / 🔒 OWASP INPVAL-010: username special characters" id="063aeb7f-7000-4bcc-a426-5aaa1e717594" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid username pattern accepted" time="0.000" classname="AuthenticationInputValidationOwaspInpval010UsernameSpecialCharacters"/>
+  </testsuite>
+  <testsuite name="Authentication Input Validation / 🔒 OWASP INPVAL-009: password length limits" id="37b67600-42f3-476f-bf03-bda9368d7f3d" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid password length accepted" time="0.000" classname="AuthenticationInputValidationOwaspInpval009PasswordLengthLimits"/>
+  </testsuite>
+  <testsuite name="MCQ Input Validation / 🔒 OWASP INPVAL-009: title length limits" id="8ed3b70a-e948-4b9d-825c-faa8d2acb03a" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid title length accepted" time="0.000" classname="McqInputValidationOwaspInpval009TitleLengthLimits"/>
+  </testsuite>
+  <testsuite name="MCQ Input Validation / 🔒 OWASP INPVAL-009: questionText length limits" id="62d04974-d030-41f8-9d65-c3b265c3bd3a" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid questionText length accepted" time="0.000" classname="McqInputValidationOwaspInpval009QuestionTextLengthLimits"/>
+  </testsuite>
+  <testsuite name="MCQ Input Validation / 🔒 OWASP INPVAL-009: description length limits" id="1f268113-f60e-4646-a8d1-5926142ac7e6" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Null description accepted" time="0.000" classname="McqInputValidationOwaspInpval009DescriptionLengthLimits"/>
+  </testsuite>
+  <testsuite name="MCQ Input Validation / 🔒 OWASP INPVAL-009: choices array size limits" id="08d89936-ef43-4e01-a7ec-ac635101ac99" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid choices count accepted" time="0.000" classname="McqInputValidationOwaspInpval009ChoicesArraySizeLimits"/>
+  </testsuite>
+  <testsuite name="TEKS Input Validation / 🔒 OWASP INPVAL-009: topicDescription length limits" id="80479efe-4e0c-4435-819a-608cb623b422" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Valid topicDescription length accepted" time="0.000" classname="TeksInputValidationOwaspInpval009TopicDescriptionLengthLimits"/>
+  </testsuite>
+  <testsuite name="TEKS Input Validation / 🔒 OWASP INPVAL-010: topicDescription special characters" id="421cd950-0b61-49ec-8a40-6314839aab0d" timestamp="2026-01-21T08:51:12.270Z" tests="1" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Special characters in topicDescription handled" time="0.000" classname="TeksInputValidationOwaspInpval010TopicDescriptionSpecialCharacters"/>
+  </testsuite>
+  <testsuite name="Query Parameter Validation / GET /api/mcqs - pagination parameters" id="28ae1663-88be-4c98-9c44-4d1ab47941c2" timestamp="2026-01-21T08:51:12.270Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Page parameter is positive integer" time="0.000" classname="QueryParameterValidationGetApiMcqsPaginationParameters"/>
+    <testcase name="Limit parameter is positive integer" time="0.000" classname="QueryParameterValidationGetApiMcqsPaginationParameters"/>
+  </testsuite>
+</testsuites>

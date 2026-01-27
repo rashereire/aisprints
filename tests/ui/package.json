@@ -1,0 +1,27 @@
+{
+  "name": "quizmaker-ui-tests",
+  "version": "1.0.0",
+  "description": "Selenium UI tests for QuizMaker application",
+  "private": true,
+  "scripts": {
+    "test:selenium": "jest",
+    "test:selenium:smoke": "jest --testNamePattern='@Smoke'",
+    "test:selenium:watch": "jest --watch",
+    "test:selenium:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.27.0"
+  },
+  "devDependencies": {
+    "@axe-core/webdriverjs": "^4.10.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.10",
+    "@types/selenium-webdriver": "^4.1.4",
+    "chromedriver": "^144.0.0",
+    "jest": "^29.7.0",
+    "jest-html-reporter": "^3.1.5",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -14,38 +14,47 @@ Rules are phrased as SHOULD / SHOULD NOT and represent preferred patterns for Cu
 ---
 
 ## Preferred Stack
-- Java + TestNG
+- TypeScript + Jest
 - Selenium WebDriver
-- Maven + Jenkins
+- npm + Jenkins
 - Page Object Model
-- Allure Reporting
-- JIRA (Xray or Zephyr Scale)
+- Jest HTML Reporter (or Allure if preferred)
 - axe-core for accessibility
 
 ---
 
 ## Canonical Project Structure
 ```text
-src/test/java
- ├─ base
- ├─ pages
- ├─ tests
- └─ utils
+tests/ui/
+ ├─ src/
+ │   ├─ base          # Base test classes, driver factory
+ │   ├─ pages         # Page Object Model classes
+ │   └─ tests         # Test files
+ ├─ config/           # Configuration files
+ └─ reports/          # Test reports
 ```
 
 ---
 
 ## Driver Factory (Canonical)
-```java
-public class DriverFactory {
-  public static WebDriver create(String browser) {
-    if (browser.equals("chrome")) {
-      return new ChromeDriver();
+```typescript
+import { Builder, WebDriver } from 'selenium-webdriver';
+import * as chrome from 'selenium-webdriver/chrome';
+
+export class DriverFactory {
+  static async create(browser: string): Promise<WebDriver> {
+    if (browser === 'chrome') {
+      return new Builder()
+        .forBrowser('chrome')
+        .setChromeOptions(new chrome.Options())
+        .build();
     }
-    if (browser.equals("firefox")) {
-      return new FirefoxDriver();
+    if (browser === 'firefox') {
+      return new Builder()
+        .forBrowser('firefox')
+        .build();
     }
-    throw new IllegalArgumentException("Unsupported browser");
+    throw new Error(`Unsupported browser: ${browser}`);
   }
 }
 ```
@@ -53,13 +62,16 @@ public class DriverFactory {
 ---
 
 ## Page Object Example
-```java
-public class LoginPage {
-  private By username = By.id("username");
+```typescript
+import { WebDriver, By, until } from 'selenium-webdriver';
+import { BasePage } from '../base/BasePage';
 
-  public LoginPage enterUsername(String value) {
-    driver.findElement(username).sendKeys(value);
-    return this;
+export class LoginPage extends BasePage {
+  private readonly username = By.id('username');
+
+  async enterUsername(value: string): Promise<void> {
+    const element = await this.waitForElement(this.username);
+    await element.sendKeys(value);
   }
 }
 ```
@@ -77,31 +89,53 @@ Preferred order:
 ---
 
 ## Explicit Wait Example
-```java
-new WebDriverWait(driver, Duration.ofSeconds(10))
-  .until(ExpectedConditions.visibilityOf(element));
+```typescript
+import { WebDriver, until, By } from 'selenium-webdriver';
+
+const element = await driver.wait(
+  until.elementLocated(By.id('username')),
+  10000 // 10 seconds
+);
 ```
 
 ---
 
 ## Accessibility (axe-core)
-```java
-Results results = new AxeBuilder().analyze(driver);
-assertTrue(results.getViolations().isEmpty());
+```typescript
+import { AxeBuilder } from '@axe-core/webdriverjs';
+
+const results = await new AxeBuilder(driver).analyze();
+expect(results.violations).toHaveLength(0);
 ```
 
 ---
 
-## Reporting (Allure)
-```java
-Allure.addAttachment("Screenshot",
-  new ByteArrayInputStream(screenshotBytes));
+## Reporting (Jest HTML Reporter)
+```typescript
+// Configured in jest.config.ts
+// Screenshots captured on test failure via Jest hooks
 ```
 
 ---
 
-## JIRA Mapping
-```java
-@Test(description = "XRAY-123 Verify login")
+## Test Structure Example
+```typescript
+describe('Login Tests', () => {
+  let driver: WebDriver;
+
+  beforeAll(async () => {
+    driver = await DriverFactory.create('chrome');
+  });
+
+  afterAll(async () => {
+    await driver.quit();
+  });
+
+  test('should login with valid credentials', async () => {
+    const loginPage = new LoginPage(driver);
+    await loginPage.enterUsername('testuser');
+    // ... test implementation
+  });
+});
 ```
 ---

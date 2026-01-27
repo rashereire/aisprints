@@ -49,9 +49,13 @@ const mockTeksMcqGenerationSchema = vi.mocked(
   (await import('@/lib/schemas/teks-mcq-schema')).teksMcqGenerationSchema.parse,
 );
 
-function createRequest(body: unknown): NextRequest {
+function createRequest(body: unknown, headers?: Record<string, string>): NextRequest {
   return {
     json: async () => body,
+    headers: {
+      get: (name: string) => headers?.[name.toLowerCase()] || null,
+      has: (name: string) => !!headers?.[name.toLowerCase()],
+    } as Headers,
   } as unknown as NextRequest;
 }
 

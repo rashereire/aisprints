@@ -209,10 +209,10 @@ This document provides universal, tool-agnostic guidelines for creating comprehe
 
 ### Selenium-Specific Guidelines
 
-- **Preferred stack**: Java + TestNG, Selenium WebDriver, Maven + Jenkins, Page Object Model, Allure Reporting
-- **Project structure**: Organize tests into `base`, `pages`, `tests`, and `utils` directories
+- **Preferred stack**: TypeScript + Jest, Selenium WebDriver, npm + Jenkins, Page Object Model, Jest HTML Reporter (or Allure)
+- **Project structure**: Organize tests into `tests/ui/src/` with `base`, `pages`, and `tests` subdirectories
 - **Accessibility**: Use axe-core for accessibility testing
-- **Continuous execution**: Trigger Selenium tests automatically on commits or nightly builds
+- **Continuous execution**: Trigger Selenium tests automatically on commits or nightly builds via Jenkins
 
 ---
 
@@ -229,3 +229,34 @@ When creating a test plan, ensure:
 - [ ] Reporting and logging strategy is defined
 - [ ] Tests are mapped to requirements/user stories
 - [ ] Tool-specific guidelines are documented (if applicable)
+
+# Test Definition of Done (DoD)
+
+A test effort is considered **done** when all of the following criteria are met:
+
+### 1. Requirements & Intent
+- Every requirement has documented **quality questions**.
+- **Business intent** and **user impact** are explicit for each test.
+- **Success and failure conditions** are clearly defined.
+
+### 2. Risk-Based Coverage
+- **High-risk paths** have strong coverage with multiple layers if needed.
+- **Medium-risk paths** have intentional, sufficient coverage.
+- **Low-risk gaps** are documented and accepted.
+- No **high-impact risks** remain unexplained.
+
+### 3. Test Quality
+- Each test validates **one clear behavior or risk**.
+- **Success and failure criteria** (oracles) are explicit and stable.
+- Tests fail for **one clear reason** only.
+
+### 4. Architecture & Maintainability
+- Tests follow agreed **guardrails and standards**.
+- **Data strategies** are intentional and consistent.
+- No **unnecessary duplication** across test layers.
+
+### 5. Confidence Check
+- No important **quality questions remain unanswered**.
+- Remaining **gaps are explicitly acknowledged and accepted**.
+- The suite **increases confidence**, not noise.
+

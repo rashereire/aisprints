@@ -66,6 +66,19 @@ sh 'newman run collection.json --reporters junit'
 - **Use Postman's cookie jar**: Let Postman automatically store and send cookies from `Set-Cookie` responses. Avoid manually setting `Cookie` headers.
 - **Setup login at collection start**: Add a setup request that logs in and captures the session cookie. The cookie jar will automatically send it to subsequent requests.
 - **Use `disableCookies: true` for unauthenticated tests**: Set `"protocolProfileBehavior": { "disableCookies": true }` on requests that should test unauthenticated access.
-- **Clear cookies with exact domain match**: When clearing cookies for unauthenticated tests, use `pm.cookies.jar().clear(baseUrl, callback)` where `baseUrl` comes from environment variables, not `pm.request.url.toString()`. This ensures exact domain matching.
+- **Server-side logout for "no session" tests**: For tests expecting "no session" scenarios (e.g., 401 Unauthorized), call the logout endpoint server-side in a pre-request script before clearing cookies client-side. This ensures the session is invalidated on the server, not just the client.
+
+---
+
+## Setup Requests and Data Management
+- **DO NOT use `pm.sendRequest()` in pre-request scripts for setup**: `pm.sendRequest()` is asynchronous and does not block the main request. Variables set in callbacks will not be available when the main request executes.
+- **Create separate setup requests instead**: For test data that must exist before dependent tests run, create dedicated setup requests in folders (e.g., "MCQ - Attempt Setup") that execute synchronously before the tests that need them.
+- **Use collection variables for test-scoped data**: Use `pm.collectionVariables.set()` and `pm.collectionVariables.get()` for test data that's scoped to a collection run (e.g., `testMcqIdForAttempt`).
+- **Use environment variables for cross-collection data**: Use `pm.environment.set()` and `pm.environment.get()` for data that needs to persist across multiple collections (e.g., `authSessionCookie`).
+
+---
+
+## Authentication and Resource Existence Testing
+- **Authenticate before testing "not found" scenarios**: If an API route checks authentication before checking resource existence, tests expecting 404 Not Found must be authenticated first. Otherwise, they will receive 401 Unauthorized before reaching the resource existence check.
 
 ---

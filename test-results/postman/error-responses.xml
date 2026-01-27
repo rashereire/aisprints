@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Error Response Validation - Pre-Build" tests="9" time="0.000">
+  <testsuite name="400 Bad Request Errors / Validation Error - Missing Required Fields" id="d3bc51db-8a2b-4a6c-8c0d-88e479713805" timestamp="2026-01-21T08:51:11.734Z" tests="4" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 400" time="0.000" classname="400BadRequestErrorsValidationErrorMissingRequiredFields"/>
+    <testcase name="Error response structure valid" time="0.000" classname="400BadRequestErrorsValidationErrorMissingRequiredFields"/>
+    <testcase name="🔒 OWASP ERR-001: Generic error message without internals" time="0.000" classname="400BadRequestErrorsValidationErrorMissingRequiredFields"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="400BadRequestErrorsValidationErrorMissingRequiredFields"/>
+  </testsuite>
+  <testsuite name="400 Bad Request Errors / Validation Error - Invalid Data Format" id="a82f9e8b-cd68-4ca2-8927-6b43f780d66d" timestamp="2026-01-21T08:51:11.734Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 400" time="0.000" classname="400BadRequestErrorsValidationErrorInvalidDataFormat"/>
+    <testcase name="Error message is generic" time="0.000" classname="400BadRequestErrorsValidationErrorInvalidDataFormat"/>
+  </testsuite>
+  <testsuite name="401 Unauthorized Errors / Authentication Required" id="92600958-6fe2-4b1d-b262-0e3a38d81ebe" timestamp="2026-01-21T08:51:11.734Z" tests="4" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 401" time="0.000" classname="401UnauthorizedErrorsAuthenticationRequired"/>
+    <testcase name="Error response structure valid" time="0.000" classname="401UnauthorizedErrorsAuthenticationRequired"/>
+    <testcase name="🔒 OWASP ERR-001: Generic error message" time="0.000" classname="401UnauthorizedErrorsAuthenticationRequired"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="401UnauthorizedErrorsAuthenticationRequired"/>
+  </testsuite>
+  <testsuite name="401 Unauthorized Errors / Invalid Credentials" id="fb9fa31b-e0d4-4f6b-8e08-fd8548d84642" timestamp="2026-01-21T08:51:11.734Z" tests="2" failures="1" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 401" time="0.000" classname="401UnauthorizedErrorsInvalidCredentials"/>
+    <testcase name="🔒 OWASP ERR-001: Does not reveal which field is wrong" time="0.000" classname="401UnauthorizedErrorsInvalidCredentials">
+      <failure type="AssertionFailure" message="expected 'Username or password is incorrect' to not include 'password'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: c3c91a07-6a51-45de-b5f9-0d3feddebf91.]]>
+        <![CDATA[Collection name: Error Response Validation - Pre-Build.]]>
+        <![CDATA[Request name: 401 Unauthorized Errors / Invalid Credentials.]]>
+        <![CDATA[Test description: 🔒 OWASP ERR-001: Does not reveal which field is wrong.]]>
+        <![CDATA[Error message: expected 'Username or password is incorrect' to not include 'password'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 'Username or password is incorrect' to not include 'password'
+   at Object.eval sandbox-script.js:2:4).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="403 Forbidden Errors / Authorization Failed" id="d335b77d-ebc3-40dc-aa5b-4200a7c71c53" timestamp="2026-01-21T08:51:11.734Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 403" time="0.000" classname="403ForbiddenErrorsAuthorizationFailed"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="403ForbiddenErrorsAuthorizationFailed"/>
+  </testsuite>
+  <testsuite name="404 Not Found Errors / Resource Not Found" id="991953f5-4469-4ba9-8389-eaa2de28f343" timestamp="2026-01-21T08:51:11.734Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 404" time="0.000" classname="404NotFoundErrorsResourceNotFound"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="404NotFoundErrorsResourceNotFound"/>
+  </testsuite>
+  <testsuite name="409 Conflict Errors / Duplicate Resource" id="9882b328-937d-4771-9d78-17b18babfe30" timestamp="2026-01-21T08:51:11.734Z" tests="3" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 409" time="0.000" classname="409ConflictErrorsDuplicateResource"/>
+    <testcase name="🔒 OWASP ERR-001: Generic error message" time="0.000" classname="409ConflictErrorsDuplicateResource"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="409ConflictErrorsDuplicateResource"/>
+  </testsuite>
+  <testsuite name="500 Internal Server Error / Generic Server Error" id="93eedd58-8409-470a-bc13-ddcc2f4731e8" timestamp="2026-01-21T08:51:11.734Z" tests="4" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 500" time="0.000" classname="500InternalServerErrorGenericServerError"/>
+    <testcase name="🔒 OWASP ERR-001: No stack traces or internal details" time="0.000" classname="500InternalServerErrorGenericServerError"/>
+    <testcase name="🔒 OWASP ERR-001: No database or system details" time="0.000" classname="500InternalServerErrorGenericServerError"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="500InternalServerErrorGenericServerError"/>
+  </testsuite>
+  <testsuite name="429 Too Many Requests / Rate Limit Exceeded" id="58fca321-77ad-4316-948b-bddc14c4db3b" timestamp="2026-01-21T08:51:11.734Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Status 429" time="0.000" classname="429TooManyRequestsRateLimitExceeded"/>
+    <testcase name="🔒 OWASP ERR-004: Appropriate HTTP status code" time="0.000" classname="429TooManyRequestsRateLimitExceeded"/>
+  </testsuite>
+</testsuites>

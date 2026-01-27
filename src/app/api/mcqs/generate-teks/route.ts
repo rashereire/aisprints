@@ -132,22 +132,61 @@ The question should help teachers assess whether students have met the learning 
     console.log('API key source: .dev.vars file');
     console.log('=== End API Key Verification ===');
 
-    // Create OpenAI provider with explicit API key
-    // This ensures the API key is passed correctly, especially in Cloudflare Workers
-    // where process.env might not be available at module load time
-    const openaiClient = createOpenAI({
-      apiKey: apiKey,
-    });
-
+    // Check if AI mocking is enabled (for testing without API costs)
+    // Can be set via environment variable or request header
+    const mockAiHeader = req.headers.get('x-mock-ai-responses');
+    const mockAiEnv = process.env.MOCK_AI_RESPONSES === 'true' || 
+                      (process.env as any).MOCK_AI_RESPONSES === 'true';
+    const mockAiResponses = mockAiHeader === 'true' || mockAiEnv;
+    
     let generatedMcq;
-    try {
-      const result = await generateObject({
-        model: openaiClient('gpt-4o'),
-        schema: teksMcqGenerationSchema,
-        prompt,
+    
+    if (mockAiResponses) {
+      // Return mock MCQ structure for testing without OpenAI API costs
+      console.log('MOCK MODE: Returning mock MCQ structure (AI API call skipped)');
+      generatedMcq = {
+        title: 'Mock TEKS MCQ - Patterns in Weather and Seasons',
+        description: 'This is a mock MCQ generated for testing purposes. AI API call was skipped.',
+        questionText: 'Which of the following best describes a pattern that can be observed in weather and seasons?',
+        choices: [
+          {
+            choiceText: 'Weather patterns repeat in predictable cycles throughout the year',
+            isCorrect: true,
+            displayOrder: 0,
+          },
+          {
+            choiceText: 'Weather is completely random and cannot be predicted',
+            isCorrect: false,
+            displayOrder: 1,
+          },
+          {
+            choiceText: 'Seasons only occur in certain parts of the world',
+            isCorrect: false,
+            displayOrder: 2,
+          },
+          {
+            choiceText: 'Weather patterns never change from year to year',
+            isCorrect: false,
+            displayOrder: 3,
+          },
+        ],
+      };
+    } else {
+      // Create OpenAI provider with explicit API key
+      // This ensures the API key is passed correctly, especially in Cloudflare Workers
+      // where process.env might not be available at module load time
+      const openaiClient = createOpenAI({
+        apiKey: apiKey,
       });
-      generatedMcq = result.object;
-    } catch (aiError: any) {
+
+      try {
+        const result = await generateObject({
+          model: openaiClient('gpt-4o'),
+          schema: teksMcqGenerationSchema,
+          prompt,
+        });
+        generatedMcq = result.object;
+      } catch (aiError: any) {
       // Log the raw error object first - before any transformation
       console.error('=== RAW OpenAI API Error ===');
       console.error('Error name:', aiError?.name);
@@ -353,6 +392,7 @@ The question should help teachers assess whether students have met the learning 
         },
         { status: 500 }
       );
+    }
     }
 
     // Validate the generated MCQ (should already be validated by schema, but double-check)

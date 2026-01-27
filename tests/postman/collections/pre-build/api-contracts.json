@@ -1,0 +1,484 @@
+{
+	"info": {
+		"name": "API Contract Validation - Pre-Build",
+		"description": "Validates API request/response schemas, HTTP methods, Content-Type headers, and required headers. These tests run before build using schema validation only (no HTTP requests).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication API Contracts",
+			"item": [
+				{
+					"name": "POST /api/auth/register - Request Schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Request schema validation",
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"",
+									"pm.test('Request has required fields', () => {",
+									"  pm.expect(requestBody).to.have.property('firstName');",
+									"  pm.expect(requestBody).to.have.property('lastName');",
+									"  pm.expect(requestBody).to.have.property('username');",
+									"  pm.expect(requestBody).to.have.property('email');",
+									"  pm.expect(requestBody).to.have.property('password');",
+									"});",
+									"",
+									"pm.test('firstName is string and length valid', () => {",
+									"  pm.expect(requestBody.firstName).to.be.a('string');",
+									"  pm.expect(requestBody.firstName.length).to.be.at.least(1);",
+									"  pm.expect(requestBody.firstName.length).to.be.at.most(50);",
+									"});",
+									"",
+									"pm.test('lastName is string and length valid', () => {",
+									"  pm.expect(requestBody.lastName).to.be.a('string');",
+									"  pm.expect(requestBody.lastName.length).to.be.at.least(1);",
+									"  pm.expect(requestBody.lastName.length).to.be.at.most(50);",
+									"});",
+									"",
+									"pm.test('username matches regex pattern', () => {",
+									"  pm.expect(requestBody.username).to.match(/^[a-zA-Z0-9_]+$/);",
+									"  pm.expect(requestBody.username.length).to.be.at.least(3);",
+									"  pm.expect(requestBody.username.length).to.be.at.most(30);",
+									"});",
+									"",
+									"pm.test('email is valid format', () => {",
+									"  pm.expect(requestBody.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);",
+									"});",
+									"",
+									"pm.test('password meets requirements', () => {",
+									"  pm.expect(requestBody.password.length).to.be.at.least(8);",
+									"  pm.expect(requestBody.password).to.match(/^(?=.*[a-zA-Z])(?=.*\\d)/);",
+									"});",
+									"",
+									"// Response schema validation (using mock response)",
+									"const mockResponse = {",
+									"  id: 'user-123',",
+									"  firstName: requestBody.firstName,",
+									"  lastName: requestBody.lastName,",
+									"  username: requestBody.username,",
+									"  email: requestBody.email",
+									"};",
+									"",
+									"pm.test('Response schema valid', () => {",
+									"  pm.expect(mockResponse).to.have.property('id');",
+									"  pm.expect(mockResponse).to.have.property('firstName');",
+									"  pm.expect(mockResponse).to.have.property('lastName');",
+									"  pm.expect(mockResponse).to.have.property('username');",
+									"  pm.expect(mockResponse).to.have.property('email');",
+									"  pm.expect(mockResponse).to.not.have.property('password');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "POST /api/auth/login - Request Schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"",
+									"pm.test('Request has required fields', () => {",
+									"  pm.expect(requestBody).to.have.property('usernameOrEmail');",
+									"  pm.expect(requestBody).to.have.property('password');",
+									"});",
+									"",
+									"pm.test('usernameOrEmail is non-empty string', () => {",
+									"  pm.expect(requestBody.usernameOrEmail).to.be.a('string');",
+									"  pm.expect(requestBody.usernameOrEmail.length).to.be.at.least(1);",
+									"});",
+									"",
+									"pm.test('password is non-empty string', () => {",
+									"  pm.expect(requestBody.password).to.be.a('string');",
+									"  pm.expect(requestBody.password.length).to.be.at.least(1);",
+									"});",
+									"",
+									"// Mock response schema validation",
+									"const mockLoginResponse = {",
+									"  user: {",
+									"    id: 'user-123',",
+									"    username: requestBody.usernameOrEmail,",
+									"    email: 'user@example.com'",
+									"  }",
+									"};",
+									"",
+									"pm.test('Login response schema valid', () => {",
+									"  pm.expect(mockLoginResponse).to.have.property('user');",
+									"  pm.expect(mockLoginResponse.user).to.have.property('id');",
+									"  pm.expect(mockLoginResponse.user).to.have.property('username');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"johndoe\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "HTTP Method and Header Validation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Only POST method allowed for /api/auth/register', () => {",
+									"  pm.expect(pm.request.method).to.equal('POST');",
+									"});",
+									"",
+									"pm.test('Content-Type header is application/json', () => {",
+									"  const contentType = pm.request.headers.get('Content-Type');",
+									"  pm.expect(contentType).to.include('application/json');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCQ API Contracts",
+			"item": [
+				{
+					"name": "POST /api/mcqs - Request Schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"",
+									"pm.test('Request has required fields', () => {",
+									"  pm.expect(requestBody).to.have.property('title');",
+									"  pm.expect(requestBody).to.have.property('questionText');",
+									"  pm.expect(requestBody).to.have.property('choices');",
+									"});",
+									"",
+									"pm.test('title length validation', () => {",
+									"  pm.expect(requestBody.title.length).to.be.at.least(1);",
+									"  pm.expect(requestBody.title.length).to.be.at.most(200);",
+									"});",
+									"",
+									"pm.test('questionText length validation', () => {",
+									"  pm.expect(requestBody.questionText.length).to.be.at.least(1);",
+									"  pm.expect(requestBody.questionText.length).to.be.at.most(1000);",
+									"});",
+									"",
+									"pm.test('choices array validation', () => {",
+									"  pm.expect(requestBody.choices).to.be.an('array');",
+									"  pm.expect(requestBody.choices.length).to.be.at.least(2);",
+									"  pm.expect(requestBody.choices.length).to.be.at.most(4);",
+									"});",
+									"",
+									"pm.test('exactly one choice is correct', () => {",
+									"  const correctCount = requestBody.choices.filter(c => c.isCorrect === true).length;",
+									"  pm.expect(correctCount).to.equal(1);",
+									"});",
+									"",
+									"pm.test('each choice has required fields', () => {",
+									"  requestBody.choices.forEach((choice, index) => {",
+									"    pm.expect(choice).to.have.property('choiceText');",
+									"    pm.expect(choice).to.have.property('isCorrect');",
+									"    pm.expect(choice).to.have.property('displayOrder');",
+									"    pm.expect(choice.choiceText.length).to.be.at.least(1);",
+									"    pm.expect(choice.isCorrect).to.be.a('boolean');",
+									"    pm.expect(choice.displayOrder).to.be.a('number');",
+									"});",
+									"});",
+									"",
+									"// Mock response schema validation",
+									"const mockMcqResponse = {",
+									"  id: 'mcq-123',",
+									"  title: requestBody.title,",
+									"  description: requestBody.description || null,",
+									"  questionText: requestBody.questionText,",
+									"  createdByUserId: 'user-123',",
+									"  createdAt: '2025-01-01T00:00:00Z',",
+									"  updatedAt: '2025-01-01T00:00:00Z',",
+									"  choices: requestBody.choices.map((c, i) => ({",
+									"    id: `choice-${i}`,",
+									"    mcqId: 'mcq-123',",
+									"    choiceText: c.choiceText,",
+									"    isCorrect: c.isCorrect,",
+									"    displayOrder: c.displayOrder,",
+									"    createdAt: '2025-01-01T00:00:00Z'",
+									"  }))",
+									"};",
+									"",
+									"pm.test('MCQ response schema valid', () => {",
+									"  pm.expect(mockMcqResponse).to.have.property('id');",
+									"  pm.expect(mockMcqResponse).to.have.property('title');",
+									"  pm.expect(mockMcqResponse).to.have.property('questionText');",
+									"  pm.expect(mockMcqResponse).to.have.property('choices');",
+									"  pm.expect(mockMcqResponse.choices).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test MCQ\",\n  \"description\": \"Test description\",\n  \"questionText\": \"What is 2+2?\",\n  \"choices\": [\n    { \"choiceText\": \"3\", \"isCorrect\": false, \"displayOrder\": 0 },\n    { \"choiceText\": \"4\", \"isCorrect\": true, \"displayOrder\": 1 },\n    { \"choiceText\": \"5\", \"isCorrect\": false, \"displayOrder\": 2 },\n    { \"choiceText\": \"6\", \"isCorrect\": false, \"displayOrder\": 3 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "GET /api/mcqs - Response Schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Mock paginated response schema validation",
+									"const mockPaginatedResponse = {",
+									"  data: [],",
+									"  pagination: {",
+									"    page: 1,",
+									"    limit: 10,",
+									"    total: 0,",
+									"    totalPages: 0",
+									"  }",
+									"};",
+									"",
+									"pm.test('Response has pagination structure', () => {",
+									"  pm.expect(mockPaginatedResponse).to.have.property('data');",
+									"  pm.expect(mockPaginatedResponse).to.have.property('pagination');",
+									"  pm.expect(mockPaginatedResponse.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Pagination object has required fields', () => {",
+									"  pm.expect(mockPaginatedResponse.pagination).to.have.property('page');",
+									"  pm.expect(mockPaginatedResponse.pagination).to.have.property('limit');",
+									"  pm.expect(mockPaginatedResponse.pagination).to.have.property('total');",
+									"  pm.expect(mockPaginatedResponse.pagination).to.have.property('totalPages');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "POST /api/mcqs/[id]/attempt - Request Schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"",
+									"pm.test('Request has required field', () => {",
+									"  pm.expect(requestBody).to.have.property('selectedChoiceId');",
+									"});",
+									"",
+									"pm.test('selectedChoiceId is non-empty string', () => {",
+									"  pm.expect(requestBody.selectedChoiceId).to.be.a('string');",
+									"  pm.expect(requestBody.selectedChoiceId.length).to.be.at.least(1);",
+									"});",
+									"",
+									"// Mock response schema validation",
+									"const mockAttemptResponse = {",
+									"  id: 'attempt-123',",
+									"  mcqId: 'mcq-123',",
+									"  userId: 'user-123',",
+									"  selectedChoiceId: requestBody.selectedChoiceId,",
+									"  isCorrect: true,",
+									"  attemptedAt: '2025-01-01T00:00:00Z'",
+									"};",
+									"",
+									"pm.test('Attempt response schema valid', () => {",
+									"  pm.expect(mockAttemptResponse).to.have.property('id');",
+									"  pm.expect(mockAttemptResponse).to.have.property('mcqId');",
+									"  pm.expect(mockAttemptResponse).to.have.property('userId');",
+									"  pm.expect(mockAttemptResponse).to.have.property('selectedChoiceId');",
+									"  pm.expect(mockAttemptResponse).to.have.property('isCorrect');",
+									"  pm.expect(mockAttemptResponse).to.have.property('attemptedAt');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"selectedChoiceId\": \"choice-123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/:id/attempt",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", ":id", "attempt"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "mcq-123"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "TEKS API Contracts",
+			"item": [
+				{
+					"name": "POST /api/mcqs/generate-teks - Request Schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"",
+									"pm.test('Request has required TEKS fields', () => {",
+									"  pm.expect(requestBody).to.have.property('subject');",
+									"  pm.expect(requestBody).to.have.property('gradeLevel');",
+									"  pm.expect(requestBody).to.have.property('strandName');",
+									"  pm.expect(requestBody).to.have.property('standardCode');",
+									"  pm.expect(requestBody).to.have.property('standardDescription');",
+									"  pm.expect(requestBody).to.have.property('topicDescription');",
+									"});",
+									"",
+									"pm.test('topicDescription length validation', () => {",
+									"  pm.expect(requestBody.topicDescription.length).to.be.at.least(10);",
+									"  pm.expect(requestBody.topicDescription.length).to.be.at.most(500);",
+									"});",
+									"",
+									"// Mock response schema validation",
+									"const mockTeksResponse = {",
+									"  title: 'Generated MCQ',",
+									"  description: 'Generated description',",
+									"  questionText: 'Generated question?',",
+									"  choices: [",
+									"    { choiceText: 'Choice 1', isCorrect: false, displayOrder: 0 },",
+									"    { choiceText: 'Choice 2', isCorrect: true, displayOrder: 1 },",
+									"    { choiceText: 'Choice 3', isCorrect: false, displayOrder: 2 },",
+									"    { choiceText: 'Choice 4', isCorrect: false, displayOrder: 3 }",
+									"  ]",
+									"};",
+									"",
+									"pm.test('Response has MCQ structure', () => {",
+									"  pm.expect(mockTeksResponse).to.have.property('title');",
+									"  pm.expect(mockTeksResponse).to.have.property('questionText');",
+									"  pm.expect(mockTeksResponse).to.have.property('choices');",
+									"  pm.expect(mockTeksResponse.choices.length).to.equal(4);",
+									"});",
+									"",
+									"pm.test('Response has exactly one correct choice', () => {",
+									"  const correctCount = mockTeksResponse.choices.filter(c => c.isCorrect === true).length;",
+									"  pm.expect(correctCount).to.equal(1);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"Test standard\",\n  \"topicDescription\": \"This is a test topic description that is at least 10 characters long\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		}
+	]
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Post-Build Auth Integration Tests" tests="16" time="0.451">
+  <testsuite name="Auth - User Registration / Auth - POST /api/auth/register - valid registration creates or reuses test user (201 or 409)" id="8b896d1e-eeec-4f7f-8842-9295240d189a" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.031">
+    <testcase name="Auth - register - status is 201 (created) or 409 (already exists)" time="0.031" classname="AuthUserRegistrationAuthPostApiAuthRegisterValidRegistrationCreatesOrReusesTestUser201Or409"/>
+  </testsuite>
+  <testsuite name="Auth - User Registration / Auth - POST /api/auth/register - duplicate username returns 409" id="59ab690b-0450-4e53-aa9e-578832edda98" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.020">
+    <testcase name="Auth - register - duplicate username returns 409" time="0.020" classname="AuthUserRegistrationAuthPostApiAuthRegisterDuplicateUsernameReturns409"/>
+  </testsuite>
+  <testsuite name="Auth - User Registration / Auth - POST /api/auth/register - duplicate email returns 409" id="d7d5f96a-6548-492d-8368-8b78991bdcf4" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.010">
+    <testcase name="Auth - register - duplicate email returns 409" time="0.010" classname="AuthUserRegistrationAuthPostApiAuthRegisterDuplicateEmailReturns409"/>
+  </testsuite>
+  <testsuite name="Auth - User Registration / Auth - POST /api/auth/register - missing required field returns 400" id="83d9d86c-6762-464e-9b9f-6c7136039a1f" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.006">
+    <testcase name="Auth - register - missing email returns 400" time="0.006" classname="AuthUserRegistrationAuthPostApiAuthRegisterMissingRequiredFieldReturns400"/>
+  </testsuite>
+  <testsuite name="Auth - User Registration / Auth - POST /api/auth/register - invalid email format returns 400" id="0958dfdf-789d-4450-8047-91bfc4a196a4" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.009">
+    <testcase name="Auth - register - invalid email format returns 400" time="0.009" classname="AuthUserRegistrationAuthPostApiAuthRegisterInvalidEmailFormatReturns400"/>
+  </testsuite>
+  <testsuite name="Auth - User Registration / Auth - POST /api/auth/register - weak password rejected by validation" id="9eb1406b-6934-4084-933b-0b94fff43519" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.005">
+    <testcase name="Auth - register - weak password returns 400" time="0.005" classname="AuthUserRegistrationAuthPostApiAuthRegisterWeakPasswordRejectedByValidation"/>
+  </testsuite>
+  <testsuite name="Auth - User Login / Auth - POST /api/auth/login - login with username succeeds (200)" id="7d48a2eb-44bb-49ea-b27e-6a9a4567e541" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.111">
+    <testcase name="Auth - login with username returns 200" time="0.111" classname="AuthUserLoginAuthPostApiAuthLoginLoginWithUsernameSucceeds200"/>
+  </testsuite>
+  <testsuite name="Auth - User Login / Auth - POST /api/auth/login - login with email succeeds (200)" id="56e91413-c4e2-4416-b6bb-d9068bccac01" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.080">
+    <testcase name="Auth - login with email returns 200" time="0.080" classname="AuthUserLoginAuthPostApiAuthLoginLoginWithEmailSucceeds200"/>
+  </testsuite>
+  <testsuite name="Auth - User Login / Auth - POST /api/auth/login - invalid credentials return 401" id="a4d1d0f1-e3c9-4821-b691-921c777238f9" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.084">
+    <testcase name="Auth - login - invalid credentials returns 401" time="0.084" classname="AuthUserLoginAuthPostApiAuthLoginInvalidCredentialsReturn401"/>
+  </testsuite>
+  <testsuite name="Auth - User Login / Auth - POST /api/auth/login - missing fields return 400" id="74b51925-76ad-4c60-aac8-772a962fffda" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.005">
+    <testcase name="Auth - login - missing usernameOrEmail returns 400" time="0.005" classname="AuthUserLoginAuthPostApiAuthLoginMissingFieldsReturn400"/>
+  </testsuite>
+  <testsuite name="Auth - Session &amp; Current User / Auth - GET /api/auth/me - valid session returns current user" id="b000f2bd-35ff-4355-9101-ea7a193ae928" timestamp="2026-01-21T14:41:09.576Z" tests="2" failures="0" errors="0" time="0.007">
+    <testcase name="Auth - me - valid session returns 200" time="0.007" classname="AuthSessionAmpCurrentUserAuthGetApiAuthMeValidSessionReturnsCurrentUser"/>
+    <testcase name="Auth - me - response includes basic user fields" time="0.007" classname="AuthSessionAmpCurrentUserAuthGetApiAuthMeValidSessionReturnsCurrentUser"/>
+  </testsuite>
+  <testsuite name="Auth - Session &amp; Current User / Auth - GET /api/auth/me - no session cookie returns 401" id="755629b9-f402-41a8-a2a1-3c3b45496f44" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.029">
+    <testcase name="Auth - me - no session returns 401" time="0.029" classname="AuthSessionAmpCurrentUserAuthGetApiAuthMeNoSessionCookieReturns401"/>
+  </testsuite>
+  <testsuite name="Auth - Session &amp; Current User / Auth - POST /api/auth/verify-session - valid session returns 200" id="1a86c5e9-c63d-4bfa-a034-8b12ecef117e" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.005">
+    <testcase name="Auth - verify-session - valid session returns 200" time="0.005" classname="AuthSessionAmpCurrentUserAuthPostApiAuthVerifySessionValidSessionReturns200"/>
+  </testsuite>
+  <testsuite name="Auth - Session &amp; Current User / Auth - POST /api/auth/verify-session - invalid session returns 401" id="66bc3bc8-5d56-45d8-88fd-0b01ac4ebcff" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.006">
+    <testcase name="Auth - verify-session - invalid session returns 401" time="0.006" classname="AuthSessionAmpCurrentUserAuthPostApiAuthVerifySessionInvalidSessionReturns401"/>
+  </testsuite>
+  <testsuite name="Auth - Logout / Auth - POST /api/auth/logout - clears session and returns 200" id="f3c4a2c7-a7e5-4b87-8f66-b0f368abd4e2" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.005">
+    <testcase name="Auth - logout - valid session returns 200" time="0.005" classname="AuthLogoutAuthPostApiAuthLogoutClearsSessionAndReturns200"/>
+  </testsuite>
+  <testsuite name="Auth - Logout / Auth - POST /api/auth/logout - repeated logout is safely handled" id="12ffcfcc-e762-46f4-ac49-62ba2e1c60a2" timestamp="2026-01-21T14:41:09.576Z" tests="1" failures="0" errors="0" time="0.003">
+    <testcase name="Auth - logout - repeated logout does not error (200 or 401)" time="0.003" classname="AuthLogoutAuthPostApiAuthLogoutRepeatedLogoutIsSafelyHandled"/>
+  </testsuite>
+</testsuites>

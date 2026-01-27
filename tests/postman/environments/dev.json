@@ -1,0 +1,55 @@
+{
+	"id": "dev-environment",
+	"name": "Development",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testUsername",
+			"value": "testuser",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testPassword",
+			"value": "TestPassword123",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "sessionToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testMcqId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testChoiceId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "openaiApiKey",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "MOCK_AI_RESPONSES",
+			"value": "true",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment"
+}

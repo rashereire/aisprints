@@ -74,14 +74,56 @@ export function McqListingClient({
     }
   };
 
+  // Sync state from URL params (handles browser nav, direct links, etc.)
+  useEffect(() => {
+    const urlPage = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1;
+    const urlSearch = searchParams.get('search') || '';
+    const urlSort = searchParams.get('sort') || 'createdAt';
+    const urlOrder = (searchParams.get('order') as 'asc' | 'desc') || 'desc';
+
+    // Only update state if URL params differ from current state
+    // This prevents unnecessary re-renders and circular updates
+    if (urlPage !== pagination.page) {
+      setPagination((prev) => ({ ...prev, page: urlPage }));
+    }
+    if (urlSearch !== search) {
+      setSearch(urlSearch);
+    }
+    if (urlSort !== sort) {
+      setSort(urlSort);
+    }
+    if (urlOrder !== order) {
+      setOrder(urlOrder);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]); // Only depend on searchParams to avoid circular dependencies
+
   // Fetch MCQs when params change
   useEffect(() => {
     fetchMcqs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page, search, sort, order]);
 
-  // Update URL when params change
+  // Update URL when params change (only if URL differs from state)
   useEffect(() => {
+    const currentPage = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1;
+    const currentSearch = searchParams.get('search') || '';
+    const currentSort = searchParams.get('sort') || 'createdAt';
+    const currentOrder = (searchParams.get('order') as 'asc' | 'desc') || 'desc';
+
+    // Check if URL already matches state
+    const urlMatchesState =
+      currentPage === pagination.page &&
+      currentSearch === search &&
+      currentSort === sort &&
+      currentOrder === order;
+
+    // Skip URL update if it already matches state to prevent unnecessary router.replace calls
+    if (urlMatchesState) {
+      return;
+    }
+
+    // Build new URL params
     const params = new URLSearchParams();
     if (pagination.page > 1) params.set("page", pagination.page.toString());
     if (search) params.set("search", search);
@@ -90,7 +132,7 @@ export function McqListingClient({
 
     const newUrl = params.toString() ? `/mcqs?${params.toString()}` : "/mcqs";
     router.replace(newUrl, { scroll: false });
-  }, [pagination.page, search, sort, order, router]);
+  }, [pagination.page, search, sort, order, router, searchParams]);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="API Contract Validation - Pre-Build" tests="7" time="0.000">
+  <testsuite name="Authentication API Contracts / POST /api/auth/register - Request Schema" id="3157ac26-852e-466a-90d6-ed8119dc2773" timestamp="2026-01-21T08:51:11.240Z" tests="7" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Request has required fields" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+    <testcase name="firstName is string and length valid" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+    <testcase name="lastName is string and length valid" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+    <testcase name="username matches regex pattern" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+    <testcase name="email is valid format" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+    <testcase name="password meets requirements" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+    <testcase name="Response schema valid" time="0.000" classname="AuthenticationApiContractsPostApiAuthRegisterRequestSchema"/>
+  </testsuite>
+  <testsuite name="Authentication API Contracts / POST /api/auth/login - Request Schema" id="eda86d23-c626-470b-b8fc-746d66332329" timestamp="2026-01-21T08:51:11.240Z" tests="4" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Request has required fields" time="0.000" classname="AuthenticationApiContractsPostApiAuthLoginRequestSchema"/>
+    <testcase name="usernameOrEmail is non-empty string" time="0.000" classname="AuthenticationApiContractsPostApiAuthLoginRequestSchema"/>
+    <testcase name="password is non-empty string" time="0.000" classname="AuthenticationApiContractsPostApiAuthLoginRequestSchema"/>
+    <testcase name="Login response schema valid" time="0.000" classname="AuthenticationApiContractsPostApiAuthLoginRequestSchema"/>
+  </testsuite>
+  <testsuite name="Authentication API Contracts / HTTP Method and Header Validation" id="8a1f1fe5-eba3-4dfe-8768-8934b755d050" timestamp="2026-01-21T08:51:11.240Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Only POST method allowed for /api/auth/register" time="0.000" classname="AuthenticationApiContractsHttpMethodAndHeaderValidation"/>
+    <testcase name="Content-Type header is application/json" time="0.000" classname="AuthenticationApiContractsHttpMethodAndHeaderValidation"/>
+  </testsuite>
+  <testsuite name="MCQ API Contracts / POST /api/mcqs - Request Schema" id="5d5b556b-87ba-491f-8ea8-a78a55312a27" timestamp="2026-01-21T08:51:11.240Z" tests="7" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Request has required fields" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+    <testcase name="title length validation" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+    <testcase name="questionText length validation" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+    <testcase name="choices array validation" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+    <testcase name="exactly one choice is correct" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+    <testcase name="each choice has required fields" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+    <testcase name="MCQ response schema valid" time="0.000" classname="McqApiContractsPostApiMcqsRequestSchema"/>
+  </testsuite>
+  <testsuite name="MCQ API Contracts / GET /api/mcqs - Response Schema" id="66177182-a3db-45a4-ada7-736d71f349dc" timestamp="2026-01-21T08:51:11.240Z" tests="2" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Response has pagination structure" time="0.000" classname="McqApiContractsGetApiMcqsResponseSchema"/>
+    <testcase name="Pagination object has required fields" time="0.000" classname="McqApiContractsGetApiMcqsResponseSchema"/>
+  </testsuite>
+  <testsuite name="MCQ API Contracts / POST /api/mcqs/[id]/attempt - Request Schema" id="12313b6e-0d5c-4aae-804b-a52be382b290" timestamp="2026-01-21T08:51:11.240Z" tests="3" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Request has required field" time="0.000" classname="McqApiContractsPostApiMcqsIdAttemptRequestSchema"/>
+    <testcase name="selectedChoiceId is non-empty string" time="0.000" classname="McqApiContractsPostApiMcqsIdAttemptRequestSchema"/>
+    <testcase name="Attempt response schema valid" time="0.000" classname="McqApiContractsPostApiMcqsIdAttemptRequestSchema"/>
+  </testsuite>
+  <testsuite name="TEKS API Contracts / POST /api/mcqs/generate-teks - Request Schema" id="5a979b94-a10b-4bac-8aa4-9676a0aa2db0" timestamp="2026-01-21T08:51:11.240Z" tests="4" failures="0" errors="1" time="0.000">
+    <system-err><![CDATA[Iteration: 0
+RequestError: Error: connect ECONNREFUSED 127.0.0.1:3000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16)
+
+---
+]]></system-err>
+    <testcase name="Request has required TEKS fields" time="0.000" classname="TeksApiContractsPostApiMcqsGenerateTeksRequestSchema"/>
+    <testcase name="topicDescription length validation" time="0.000" classname="TeksApiContractsPostApiMcqsGenerateTeksRequestSchema"/>
+    <testcase name="Response has MCQ structure" time="0.000" classname="TeksApiContractsPostApiMcqsGenerateTeksRequestSchema"/>
+    <testcase name="Response has exactly one correct choice" time="0.000" classname="TeksApiContractsPostApiMcqsGenerateTeksRequestSchema"/>
+  </testsuite>
+</testsuites>

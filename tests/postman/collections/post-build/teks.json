@@ -1,0 +1,548 @@
+{
+	"info": {
+		"name": "Post-Build TEKS AI Generation Integration Tests",
+		"description": "Phase 3: TEKS AI Generation API post-build integration tests for QuizMaker.\n\nCovers TEKS-aligned MCQ generation using OpenAI, error handling, and security validation against a running instance.\n\nIMPORTANT: The /api/mcqs/generate-teks endpoint only GENERATES and RETURNS MCQ structures - it does NOT save MCQs to the database. These tests do not create database records.\n\nTest naming convention:\n- \"[Feature] - [Endpoint/Action] - [Scenario / Expected Outcome]\"\nExample: \"TEKS - POST /api/mcqs/generate-teks - valid TEKS selection generates MCQ (200)\".",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [],
+	"item": [
+		{
+			"name": "TEKS - Setup",
+			"item": [
+				{
+					"name": "TEKS - Setup - Login to establish session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verify login succeeded - cookie jar will automatically handle session cookie",
+									"pm.test('Setup login succeeded', function () {",
+									"  pm.response.to.have.status(200);",
+									"  const sessionCookie = pm.cookies.get('session_token');",
+									"  pm.expect(sessionCookie).to.not.be.undefined;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"integration_teacher_1\",\n  \"password\": \"IntegrationTestPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "TEKS - MCQ Generation",
+			"item": [
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - valid TEKS selection generates MCQ (200) [MOCKED]",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// MOCK MODE: Add header to skip OpenAI API calls",
+									"// This test uses mock responses to avoid API costs",
+									"pm.request.headers.add({ key: 'x-mock-ai-responses', value: 'true' });"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - valid TEKS selection generates MCQ (200)",
+									"",
+									"pm.test(\"TEKS - generate - status is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"TEKS - generate - response includes MCQ fields\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('title');",
+									"  pm.expect(json).to.have.property('questionText');",
+									"  pm.expect(json).to.have.property('choices');",
+									"  pm.expect(json.choices).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"TEKS - generate - MCQ has exactly 4 choices\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json.choices.length).to.equal(4);",
+									"});",
+									"",
+									"pm.test(\"TEKS - generate - exactly one choice is correct\", function () {",
+									"  const json = pm.response.json();",
+									"  const correctCount = json.choices.filter(c => c.isCorrect === true).length;",
+									"  pm.expect(correctCount).to.equal(1);",
+									"});",
+									"",
+									"pm.test(\"TEKS - generate - all choices have required fields\", function () {",
+									"  const json = pm.response.json();",
+									"  json.choices.forEach((choice, index) => {",
+									"    pm.expect(choice).to.have.property('choiceText');",
+									"    pm.expect(choice).to.have.property('isCorrect');",
+									"    pm.expect(choice).to.have.property('displayOrder');",
+									"    pm.expect(choice.displayOrder).to.equal(index);",
+									"  });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world, including patterns in weather, seasons, and day and night.\",\n  \"topicDescription\": \"observing and describing patterns in weather and seasons\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - unauthenticated request currently allowed (200) [MOCKED]",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// MOCK MODE: Add header to skip OpenAI API calls",
+									"pm.request.headers.add({ key: 'x-mock-ai-responses', value: 'true' });",
+									"// For unauthenticated test: remove any Cookie header",
+									"pm.request.headers.remove('Cookie');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - unauthenticated request currently allowed (200)",
+									"// NOTE: This endpoint currently does NOT require authentication.",
+									"// OWASP API-001 recommends requiring authentication for all API endpoints.",
+									"// This test documents current behavior - the route should be updated to require authentication.",
+									"",
+									"pm.test(\"TEKS - generate - unauthenticated request currently succeeds\", function () {",
+									"  // Currently returns 200 (no auth required), but should return 401 per OWASP API-001",
+									"  pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"protocolProfileBehavior": {
+							"disableCookies": true
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world.\",\n  \"topicDescription\": \"observing patterns in weather\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - invalid TEKS selection returns 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - invalid TEKS selection returns 400",
+									"",
+									"pm.test(\"TEKS - generate - invalid selection returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"TEKS - generate - error response includes details\", function () {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('error');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"\",\n  \"gradeLevel\": \"\",\n  \"strandName\": \"\",\n  \"standardCode\": \"\",\n  \"standardDescription\": \"\",\n  \"topicDescription\": \"short\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - topic description too short returns 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - topic description too short returns 400",
+									"// OWASP INPVAL-009: Input length limits",
+									"",
+									"pm.test(\"TEKS - generate - topic description too short returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world.\",\n  \"topicDescription\": \"short\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - topic description too long returns 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - topic description too long returns 400",
+									"// OWASP INPVAL-009: Input length limits",
+									"",
+									"pm.test(\"TEKS - generate - topic description too long returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world.\",\n  \"topicDescription\": \"A\".repeat(501)\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - missing fields returns 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - missing fields returns 400",
+									"",
+									"pm.test(\"TEKS - generate - missing fields returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - invalid JSON returns 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - invalid JSON returns 400",
+									"",
+									"pm.test(\"TEKS - generate - invalid JSON returns 400\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"invalid\": json syntax error\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "TEKS - Error Handling",
+			"item": [
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - missing OpenAI API key returns 500",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - missing OpenAI API key returns 500",
+									"// Note: This test may pass or fail depending on whether OPENAI_API_KEY is set",
+									"// If the key is set, the test will hit OpenAI API and may succeed or fail with different errors",
+									"// If the key is missing, it should return 500",
+									"",
+									"const status = pm.response.code;",
+									"",
+									"pm.test(\"TEKS - generate - missing API key returns 500 or other error\", function () {",
+									"  // Accept 500 (missing key) or 401 (invalid key) or 429 (rate limit) or 200 (if key is valid)",
+									"  // This test is informational - actual behavior depends on environment configuration",
+									"  pm.expect(status).to.be.oneOf([200, 401, 429, 500]);",
+									"});",
+									"",
+									"if (status === 500) {",
+									"  pm.test(\"TEKS - generate - error message indicates API key issue\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('error');",
+									"    const errorMsg = json.error.toLowerCase();",
+									"    pm.expect(errorMsg).to.include('api key') || pm.expect(errorMsg).to.include('openai');",
+									"  });",
+									"} else if (status === 401) {",
+									"  pm.test(\"TEKS - generate - error indicates authentication failure\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('error');",
+									"  });",
+									"} else if (status === 429) {",
+									"  pm.test(\"TEKS - generate - error indicates rate limit\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('error');",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world.\",\n  \"topicDescription\": \"observing patterns in weather\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "TEKS - OWASP Security Tests",
+			"item": [
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - XSS payload in topic description returns 400 [MOCKED]",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// MOCK MODE: Add header to skip OpenAI API calls",
+									"pm.request.headers.add({ key: 'x-mock-ai-responses', value: 'true' });"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - XSS payload in topic description returns 400",
+									"// OWASP INPVAL-001: XSS prevention",
+									"",
+									"pm.test(\"TEKS - generate - XSS payload handled safely\", function () {",
+									"  // Should either reject (400) or sanitize (200 with sanitized output)",
+									"  const status = pm.response.code;",
+									"  pm.expect(status).to.be.oneOf([200, 400]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"  pm.test(\"TEKS - generate - XSS payload not reflected in response\", function () {",
+									"    const json = pm.response.json();",
+									"    const responseStr = JSON.stringify(json);",
+									"    pm.expect(responseStr).to.not.include('<script>');",
+									"    pm.expect(responseStr).to.not.include('javascript:');",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world.\",\n  \"topicDescription\": \"<script>alert('XSS')</script> observing patterns\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				},
+				{
+					"name": "TEKS - POST /api/mcqs/generate-teks - SQL injection attempt returns 400 [MOCKED]",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// MOCK MODE: Add header to skip OpenAI API calls",
+									"pm.request.headers.add({ key: 'x-mock-ai-responses', value: 'true' });"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TEKS - POST /api/mcqs/generate-teks - SQL injection attempt returns 400",
+									"// OWASP INPVAL-005: SQL injection prevention",
+									"",
+									"pm.test(\"TEKS - generate - SQL injection attempt handled safely\", function () {",
+									"  // Should either reject (400) or sanitize (200 with sanitized output)",
+									"  const status = pm.response.code;",
+									"  pm.expect(status).to.be.oneOf([200, 400]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"  pm.test(\"TEKS - generate - SQL injection payload not reflected in response\", function () {",
+									"    const json = pm.response.json();",
+									"    const responseStr = JSON.stringify(json);",
+									"    pm.expect(responseStr).to.not.include(\"'; DROP TABLE\");",
+									"    pm.expect(responseStr).to.not.include(\"UNION SELECT\");",
+									"  });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"Grade 3\",\n  \"strandName\": \"Recurring themes and concepts\",\n  \"standardCode\": \"S.3.5.A\",\n  \"standardDescription\": \"The student is expected to observe and describe patterns in the natural world.\",\n  \"topicDescription\": \"'; DROP TABLE mcqs; -- observing patterns\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

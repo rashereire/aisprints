@@ -1,0 +1,52 @@
+{
+  "_": {
+    "postman_variable_scope": "environment"
+  },
+  "id": "dev-environment",
+  "name": "Development",
+  "values": [
+    {
+      "type": "any",
+      "value": "http://localhost:3000",
+      "key": "baseUrl"
+    },
+    {
+      "type": "any",
+      "value": "testuser",
+      "key": "testUsername"
+    },
+    {
+      "type": "any",
+      "value": "TestPassword123",
+      "key": "testPassword"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "sessionToken"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "testMcqId"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "testChoiceId"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "openaiApiKey"
+    },
+    {
+      "type": "any",
+      "value": "21b4150f29d12fe3203ee6febeb9c8315649c996dd62726191ef23379ad900bd",
+      "key": "authSessionCookie"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-01-21T16:09:11.066Z",
+  "_postman_exported_using": "Newman/6.2.2"
+}

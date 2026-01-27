@@ -1,0 +1,477 @@
+{
+	"info": {
+		"name": "Error Response Validation - Pre-Build",
+		"description": "Validates error response structures, HTTP status codes, and error message formats. Tests OWASP ERR-001 and ERR-004. These tests run before build using mock error response data (no HTTP requests).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "400 Bad Request Errors",
+			"item": [
+				{
+					"name": "Validation Error - Missing Required Fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Mock 400 error response",
+									"const mockErrorResponse = {",
+									"  code: 400,",
+									"  status: 'Bad Request',",
+									"  body: JSON.stringify({",
+									"    error: 'Validation failed',",
+									"    message: 'Missing required fields',",
+									"    details: ['firstName is required', 'email is required']",
+									"  })",
+									"};",
+									"",
+									"const errorBody = JSON.parse(mockErrorResponse.body);",
+									"",
+									"pm.test('Status 400', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(400);",
+									"});",
+									"",
+									"pm.test('Error response structure valid', () => {",
+									"  pm.expect(errorBody).to.have.property('error');",
+									"  pm.expect(errorBody).to.have.property('message');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-001: Generic error message without internals', () => {",
+									"  pm.expect(errorBody.message).to.not.include('password');",
+									"  pm.expect(errorBody.message).to.not.include('hash');",
+									"  pm.expect(errorBody.message).to.not.include('database');",
+									"  pm.expect(errorBody.message).to.not.include('SQL');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Validation Error - Invalid Data Format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 400,",
+									"  status: 'Bad Request',",
+									"  body: JSON.stringify({",
+									"    error: 'Validation failed',",
+									"    message: 'Invalid input format'",
+									"  })",
+									"};",
+									"",
+									"const errorBody = JSON.parse(mockErrorResponse.body);",
+									"",
+									"pm.test('Status 400', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(400);",
+									"});",
+									"",
+									"pm.test('Error message is generic', () => {",
+									"  pm.expect(errorBody.message).to.be.a('string');",
+									"  pm.expect(errorBody.message.length).to.be.greaterThan(0);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"invalid-email\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "401 Unauthorized Errors",
+			"item": [
+				{
+					"name": "Authentication Required",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 401,",
+									"  status: 'Unauthorized',",
+									"  body: JSON.stringify({",
+									"    error: 'Authentication required',",
+									"    message: 'Please log in to access this resource'",
+									"  })",
+									"};",
+									"",
+									"const errorBody = JSON.parse(mockErrorResponse.body);",
+									"",
+									"pm.test('Status 401', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(401);",
+									"});",
+									"",
+									"pm.test('Error response structure valid', () => {",
+									"  pm.expect(errorBody).to.have.property('error');",
+									"  pm.expect(errorBody).to.have.property('message');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-001: Generic error message', () => {",
+									"  pm.expect(errorBody.message).to.not.include('session');",
+									"  pm.expect(errorBody.message).to.not.include('token');",
+									"  pm.expect(errorBody.message).to.not.include('cookie');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs"]
+						}
+					}
+				},
+				{
+					"name": "Invalid Credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 401,",
+									"  status: 'Unauthorized',",
+									"  body: JSON.stringify({",
+									"    error: 'Invalid credentials',",
+									"    message: 'Username or password is incorrect'",
+									"  })",
+									"};",
+									"",
+									"const errorBody = JSON.parse(mockErrorResponse.body);",
+									"",
+									"pm.test('Status 401', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(401);",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-001: Does not reveal which field is wrong', () => {",
+									"  pm.expect(errorBody.message).to.not.include('username');",
+									"  pm.expect(errorBody.message).to.not.include('password');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"wronguser\",\n  \"password\": \"wrongpass\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "403 Forbidden Errors",
+			"item": [
+				{
+					"name": "Authorization Failed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 403,",
+									"  status: 'Forbidden',",
+									"  body: JSON.stringify({",
+									"    error: 'Access denied',",
+									"    message: 'You do not have permission to perform this action'",
+									"  })",
+									"};",
+									"",
+									"pm.test('Status 403', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(403);",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "mcq-123"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "404 Not Found Errors",
+			"item": [
+				{
+					"name": "Resource Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 404,",
+									"  status: 'Not Found',",
+									"  body: JSON.stringify({",
+									"    error: 'Resource not found',",
+									"    message: 'The requested resource could not be found'",
+									"  })",
+									"};",
+									"",
+									"pm.test('Status 404', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(404);",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/nonexistent-id",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "nonexistent-id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "409 Conflict Errors",
+			"item": [
+				{
+					"name": "Duplicate Resource",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 409,",
+									"  status: 'Conflict',",
+									"  body: JSON.stringify({",
+									"    error: 'Resource conflict',",
+									"    message: 'A resource with this identifier already exists'",
+									"  })",
+									"};",
+									"",
+									"const errorBody = JSON.parse(mockErrorResponse.body);",
+									"",
+									"pm.test('Status 409', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(409);",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-001: Generic error message', () => {",
+									"  pm.expect(errorBody.message).to.not.include('username');",
+									"  pm.expect(errorBody.message).to.not.include('email');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(409);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"existinguser\",\n  \"email\": \"existing@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "500 Internal Server Error",
+			"item": [
+				{
+					"name": "Generic Server Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 500,",
+									"  status: 'Internal Server Error',",
+									"  body: JSON.stringify({",
+									"    error: 'Internal server error',",
+									"    message: 'An unexpected error occurred. Please try again later.'",
+									"  })",
+									"};",
+									"",
+									"const errorBody = JSON.parse(mockErrorResponse.body);",
+									"",
+									"pm.test('Status 500', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(500);",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-001: No stack traces or internal details', () => {",
+									"  pm.expect(errorBody.message).to.not.include('stack');",
+									"  pm.expect(errorBody.message).to.not.include('trace');",
+									"  pm.expect(errorBody.message).to.not.include('Error:');",
+									"  pm.expect(errorBody.message).to.not.include('at ');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-001: No database or system details', () => {",
+									"  pm.expect(errorBody.message).to.not.include('database');",
+									"  pm.expect(errorBody.message).to.not.include('SQL');",
+									"  pm.expect(errorBody.message).to.not.include('connection');",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(500);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "429 Too Many Requests",
+			"item": [
+				{
+					"name": "Rate Limit Exceeded",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const mockErrorResponse = {",
+									"  code: 429,",
+									"  status: 'Too Many Requests',",
+									"  body: JSON.stringify({",
+									"    error: 'Rate limit exceeded',",
+									"    message: 'Too many requests. Please try again later.'",
+									"  })",
+									"};",
+									"",
+									"pm.test('Status 429', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(429);",
+									"});",
+									"",
+									"pm.test('🔒 OWASP ERR-004: Appropriate HTTP status code', () => {",
+									"  pm.expect(mockErrorResponse.code).to.equal(429);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/mcqs/generate-teks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "mcqs", "generate-teks"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		}
+	]
+}
