@@ -36,8 +36,15 @@ export class DriverFactory {
       .setChromeOptions(options)
       .build();
 
-    // Set window size explicitly (important for responsive design elements)
-    await this.driver.manage().window().setRect({ width: 1920, height: 1080 });
+    // Set window size based on mode
+    // Headless mode: Set explicit size for consistent rendering
+    // Visible mode: Maximize window to fit display (prevents zoom issues)
+    if (process.env.CI === 'true' || process.env.HEADLESS === 'true') {
+      await this.driver.manage().window().setRect({ width: 1920, height: 1080 });
+    } else {
+      // For visible mode, maximize window to prevent zoom/scaling issues
+      await this.driver.manage().window().maximize();
+    }
 
     // Set timeouts
     await this.driver.manage().setTimeouts({

@@ -44,10 +44,29 @@ import * as chrome from 'selenium-webdriver/chrome';
 export class DriverFactory {
   static async create(browser: string): Promise<WebDriver> {
     if (browser === 'chrome') {
-      return new Builder()
+      const options = new chrome.Options();
+      options.addArguments('--no-sandbox');
+      options.addArguments('--disable-dev-shm-usage');
+      
+      // Handle headless vs visible mode
+      if (process.env.CI === 'true' || process.env.HEADLESS === 'true') {
+        options.addArguments('--headless');
+        options.addArguments('--window-size=1920,1080');
+      }
+      
+      const driver = await new Builder()
         .forBrowser('chrome')
-        .setChromeOptions(new chrome.Options())
+        .setChromeOptions(options)
         .build();
+      
+      // Set window size based on mode (see Window Sizing section)
+      if (process.env.CI === 'true' || process.env.HEADLESS === 'true') {
+        await driver.manage().window().setRect({ width: 1920, height: 1080 });
+      } else {
+        await driver.manage().window().maximize();
+      }
+      
+      return driver;
     }
     if (browser === 'firefox') {
       return new Builder()
@@ -58,6 +77,44 @@ export class DriverFactory {
   }
 }
 ```
+
+---
+
+## Window Sizing: Headless vs Visible Mode
+
+**CRITICAL**: Window sizing MUST be handled differently for headless and visible modes to prevent zoom/scaling issues.
+
+### Problem
+Setting a fixed large window size (e.g., 1920x1080) in visible mode can cause Chrome to zoom/scale content when the display is smaller, making the application appear "zoomed in" and breaking visual tests.
+
+### Solution Pattern
+```typescript
+// In DriverFactory.createDriver()
+
+// Headless mode: Set explicit window size for consistent rendering
+if (process.env.CI === 'true' || process.env.HEADLESS === 'true') {
+  options.addArguments('--headless');
+  options.addArguments('--window-size=1920,1080');
+  // ... build driver ...
+  await driver.manage().window().setRect({ width: 1920, height: 1080 });
+} else {
+  // Visible mode: Maximize window to fit display (prevents zoom issues)
+  // ... build driver ...
+  await driver.manage().window().maximize();
+}
+```
+
+### Rules
+- **Headless mode**: SHOULD set explicit window size (1920x1080) for consistent rendering across CI environments
+- **Visible mode**: SHOULD use `maximize()` instead of fixed size to prevent zoom/scaling issues
+- **NEVER** set a fixed large window size unconditionally - it will cause zoom issues on smaller displays
+- Window size SHOULD be set AFTER driver creation, not just via Chrome arguments
+
+### Why This Matters
+- Responsive design elements (e.g., `md:inline` Tailwind classes) depend on viewport size
+- Fixed large sizes on smaller displays trigger browser zoom/scale behavior
+- Headless mode has no display constraints, so fixed sizes work fine
+- Visible mode must adapt to actual display size to render correctly
 
 ---
 
