@@ -37,9 +37,25 @@ export class NavigationHeader {
   }
 
   /**
-   * Check if user is logged in (header shows user name)
+   * Check if user is logged in (header shows user name or logout button)
+   * Uses logout button as primary indicator since user name might be hidden on small screens
    */
   async isUserLoggedIn(): Promise<boolean> {
+    try {
+      await this.waitForHeader();
+      // Check for logout button first (more reliable indicator)
+      const logoutButton = await this.driver.findElement(
+        By.xpath("//button[contains(text(), 'Logout') or contains(text(), 'Log out')]")
+      );
+      const isLogoutVisible = await logoutButton.isDisplayed();
+      if (isLogoutVisible) {
+        return true;
+      }
+    } catch {
+      // Logout button not found, try user name
+    }
+    
+    // Fallback: check for user name (might be hidden on small screens)
     const userName = await this.getUserDisplayName();
     return userName !== null && userName.trim().length > 0;
   }

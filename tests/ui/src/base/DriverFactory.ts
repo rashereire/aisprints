@@ -26,12 +26,18 @@ export class DriverFactory {
     // Run headless in CI environments
     if (process.env.CI === 'true' || process.env.HEADLESS === 'true') {
       options.addArguments('--headless');
+      // Set window size for headless mode to ensure responsive elements are visible
+      // This ensures md:inline elements (medium screens and up) are displayed
+      options.addArguments('--window-size=1920,1080');
     }
 
     this.driver = await new Builder()
       .forBrowser('chrome')
       .setChromeOptions(options)
       .build();
+
+    // Set window size explicitly (important for responsive design elements)
+    await this.driver.manage().window().setRect({ width: 1920, height: 1080 });
 
     // Set timeouts
     await this.driver.manage().setTimeouts({
